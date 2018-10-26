@@ -1,7 +1,6 @@
 const articleSchemaModel = require('../models/article_model.js');
 const profileSchemaModel = require('../models/profile_model.js');
 //const profileArray = require('./users_controller.js').profileArray;
-//const profile = require('./users_controller.js');
 const uniqid = require('uniqid');
 const formidable = require('formidable');
 const cloudinary = require('cloudinary');
@@ -20,10 +19,6 @@ module.exports = class Article {
     let photoObj = {};
     let videoObj = {};
     let seconds = Math.round(Date.now() / 1000);
-    // let article = new articleSchemaModel({
-    //   listOfContent: [],
-    //   delete: false
-    // });
 
     const form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
@@ -32,12 +27,6 @@ module.exports = class Article {
         listOfContent: [],
         delete: false,
         title: fields.title,
-        //postedBy: profileSchemaModel.authorID,
-        //postedBy: profile.authorID,
-        // comments: [{
-        //   content: "",
-        //   postedBy: ""
-        // }]
       });
       article.authorID = fields.authorID;
       article.author = fields.author;
@@ -48,7 +37,7 @@ module.exports = class Article {
       contentForObject.content = fields.content;
       contentForArray.push(contentForObject);
       article.listOfContent = contentForArray;
-      
+
       //上傳圖片及照片
       if (files.image != null && files.video != null) {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
@@ -148,6 +137,7 @@ module.exports = class Article {
               }
             }
 
+            // input: commenterID, output: avatarLink
             function commenterIDToAvatarLink(id){
               for(let i = 0; i < all_profile.length; i++){
                 if(id == all_profile[i].userID){
@@ -155,11 +145,6 @@ module.exports = class Article {
                 }
               }
             }
-
-
-            //寫一個坊選 input: commenterID, output: avatarLink
-
-
 
             let sortedArticle = all_article.sort(function (b, a) {
               return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
@@ -382,7 +367,6 @@ module.exports = class Article {
           photoObj.type = fields.photoType;
           photoObj.link = resultPhotoUrl.secure_url;
           forComment.mediaLink.push(photoObj)
-          //console.log("留言圖片" + forComment.mediaLink)
           cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
             videoObj.type = fields.videoType;
             videoObj.link = resultVideoUrl.secure_url;
@@ -520,9 +504,9 @@ module.exports = class Article {
           temp = doc.comment[i].likes.indexOf(req.body.dislikesPersonID);
           doc.comment[i].likes.splice(temp, 1);
           doc.comment[i].numberOfLikes = doc.comment[i].likes.length;
-            //doc.comment[i].likes.push(req.body.likesPersonID);
+          //array.set(第幾個元素,內容)
           doc.comment.set(i, doc.comment[i])
-  }       //array.set(第幾個元素,內容)
+  }
         doc.save()
           .then(value => {
             let result = {
@@ -562,14 +546,10 @@ module.exports = class Article {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
           photoObj.type = fields.photoType;
           photoObj.link = resultPhotoUrl.secure_url;
-          //console.log(photoObj)
-          //updateForComment.mediaLink.push(photoObj)
 
           cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
             videoObj.type = fields.videoType;
             videoObj.link = resultVideoUrl.secure_url;
-            //updateForComment.mediaLink.push(videoObj);
-
 
             articleSchemaModel.findOne({_id: fields.articleID})
               .then(doc => {
@@ -585,9 +565,6 @@ module.exports = class Article {
                   if ( doc.comment[i].listOfComment != null) doc.comment[i].listOfComment = updateCommentArrayForListOfComment
 
                 }
-                //console.log(doc)
-                //doc.comment.push(updateForComment)
-                //console.log(doc)
 
                 doc.save()
                   .then(value => {
@@ -636,7 +613,6 @@ module.exports = class Article {
         cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
           videoObj.type = fields.videoType;
           videoObj.link = resultVideoUrl.secure_url;
-          //updateForComment.mediaLink.push(videoObj)
 
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
@@ -688,9 +664,7 @@ module.exports = class Article {
               })
           })
       }
-
     })
-
   }
 
   deleteComment(req, res, next){
@@ -724,8 +698,7 @@ module.exports = class Article {
             }
             res.json(error)
           })
-  })
+       })
   }
-
 }
 

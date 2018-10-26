@@ -11,7 +11,6 @@ cloudinary.config({
 })
 
 
-
 module.exports = class Profile {
   searchProfileByUserID(req, res, next) {
     profileSchemaModel.findOne({userID: req.body.userID})
@@ -309,11 +308,5 @@ module.exports = class Profile {
       })
       .catch(error => console.log(error));
   }
-
-
-
-
-
-
 }
 

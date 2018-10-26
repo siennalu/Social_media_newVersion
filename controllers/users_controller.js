@@ -13,7 +13,6 @@ cloudinary.config({
 
 //let profileArray = [];
 
-
 //判斷email格式
 const Check = require('./service/users_checks.js');
 
@@ -189,7 +188,6 @@ module.exports = class User {
       }
   }
 }
-//console.log(profileArray);
 //module.exports.profileArray = profileArray;
 
 
