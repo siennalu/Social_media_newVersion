@@ -308,5 +308,29 @@ module.exports = class Profile {
       })
       .catch(error => console.log(error));
   }
+
+
+
+  friendsRequest(req, res, next){
+
+    //發出請求等待確認
+    //req.body.userID_request 發出請求好友確認的人
+    //req.body.userID_requested 被請求確認的人
+    profileSchemaModel.findOne({userID:req.body.userID_request})
+      .then(doc => {
+        //console.log(doc)
+        //console.log(doc.request)
+        doc.request.push(req.body.userID_requested)
+        doc.save().then(value => {
+          let result = {
+            status: "正等待好友確認",
+            content: value
+          }
+          res.json(result);
+        })
+      })
+
+
+  }
 }
 

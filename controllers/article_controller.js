@@ -123,14 +123,6 @@ module.exports = class Article {
               let authorAvatarLink = commenterIDToAvatarLink(all_article[i].authorID)
                 all_article[i].avatarLink.push(authorAvatarLink)
             }
-            //console.log(all_article)
-            // for (let i = 0; i <= all_article.length - 1; i++) {
-            //   for (let j = 0; j <= all_profile.length - 1; j++) {
-            //     if (all_article[i].authorID = all_profile[j].userID) {
-            //       all_article[i].avatarLink = all_profile[j].avatarLink
-            //     }
-            //   }
-            // }
 
             for(let i = 0; i < all_article.length; i++){
               for(let j = 0; j < all_article[i].comment.length; j++){

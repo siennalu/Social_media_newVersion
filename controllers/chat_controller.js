@@ -12,14 +12,15 @@ cloudinary.config({
 
 
 module.exports = class Chat {
-  chatMessage(req, res, next) {
+  createChatRoom(req, res, next) {
     let messageForObject = {};
     let messageForArray = [];
     let seconds = Math.round(Date.now() / 1000);
     let id = uniqid();
-    //let forMessage = {}
+
     const form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
+
       let chat = new chatSchemaModel({
         sender_userID: fields.senderID,
         jointPeople: [], //receiver
@@ -32,7 +33,8 @@ module.exports = class Chat {
       messageForObject.senderID = fields.senderID
       messageForArray.push(messageForObject);
       chat.message = messageForArray;
-      chat.jointPeople.push(fields.receiverID)
+      chat.jointPeople.push(fields.receiverID);
+      chat.jointPeople.push(fields.senderID);
 
       chat.save()
         .then(value => {
@@ -54,7 +56,6 @@ module.exports = class Chat {
           if (doc[i].jointPeople.indexOf(req.body.receiveID) != -1) {
             console.log(doc[i])
           }
-
           let result = {
             status: "聊天紀錄傳送成功",
             content: doc[i]
@@ -63,6 +64,13 @@ module.exports = class Chat {
         }
       })
   }
+
+
+
+  //1.創建聊天室的api聊天內容的api....
+  //2.發送訊息的api
+  //3.加入好友的api
+  //4.查看某特訊息api
 
 
 

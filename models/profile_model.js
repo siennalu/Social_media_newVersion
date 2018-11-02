@@ -14,6 +14,7 @@ let profileSchema = new Schema({
   friends: Array,
   avatarLink : String,
   backgroundLink: String,
+  request:Array,
   // posts: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: 'Article'

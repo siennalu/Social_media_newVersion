@@ -18,8 +18,6 @@ router.get('/search_user', user.retrieveUser); //read
 
 router.put('/update_user', user.updateUser); //update
 
-router.post('/search_userByuserID', user.searchUserByUserID); //searchByUserID
-
 router.post('/add_article', article.postArticle); //post article
 
 router.put('/update_article', article.updateArticle); //update article
@@ -58,14 +56,15 @@ router.put('/profile_setting', profile.profileSetting); //profile
 
 //router.put('/friends_following', profile.friendsFollowing); //追蹤
 
+router.post('/friends_request', profile.friendsRequest); //取消追蹤
+
 router.put('/friends_unfollowing', profile.friendsUnfollowing); //取消追蹤
 
 router.put('/friends_add', profile.friendsAdd); //新增好友
 
 router.put('/friends_unadded', profile.friendsUnadded); //取消好友
 
-
-router.post('/chat_message', chat.chatMessage); //傳送訊息
+router.post('/chat_message', chat.createChatRoom); //傳送訊息
 
 router.post('/chat_history', chat.chatHistory); //歷史訊息
 
