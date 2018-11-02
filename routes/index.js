@@ -2,11 +2,13 @@ const express = require('express');
 const router = express.Router();
 const User = require('../controllers/users_controller');
 const Article = require('../controllers/article_controller');
-const Profile = require('../controllers/profile_controller')
+const Profile = require('../controllers/profile_controller');
+const Chat = require('../controllers/chat_controller');
 
 let user = new User();
 let article = new Article();
 let profile = new Profile();
+let chat = new Chat();
 
 router.post('/register', user.insertUser); //create(register)
 
@@ -15,6 +17,8 @@ router.post('/login', user.loginUser);  //login
 router.get('/search_user', user.retrieveUser); //read
 
 router.put('/update_user', user.updateUser); //update
+
+router.post('/search_userByuserID', user.searchUserByUserID); //searchByUserID
 
 router.post('/add_article', article.postArticle); //post article
 
@@ -59,6 +63,11 @@ router.put('/friends_unfollowing', profile.friendsUnfollowing); //取消追蹤
 router.put('/friends_add', profile.friendsAdd); //新增好友
 
 router.put('/friends_unadded', profile.friendsUnadded); //取消好友
+
+
+router.post('/chat_message', chat.chatMessage); //傳送訊息
+
+router.post('/chat_history', chat.chatHistory); //歷史訊息
 
 
 module.exports = router;

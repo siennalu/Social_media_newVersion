@@ -187,6 +187,17 @@ module.exports = class User {
             })
       }
   }
+
+  searchUserByUserID(req, res, next){
+     userSchemaModel.find({_id:req.body.userID})
+       .then(doc=> {
+         res.json(doc)
+         console.log(doc)
+       })
+  }
+
+
+
 }
 //module.exports.profileArray = profileArray;
 
