@@ -3,10 +3,11 @@ const Schema = mongoose.Schema;
 
 let chatSchema = new Schema({
   chatID: String,
-  sender_userID: String,
+  creator_userID: String,
   jointPeople: Array, //receiver
   message: Array,
   chatRoomName: Number,
+  titleOfChatroom: String,
 
 }, { versionKey: false });
 

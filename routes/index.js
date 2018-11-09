@@ -56,17 +56,24 @@ router.put('/profile_setting', profile.profileSetting); //profile
 
 //router.put('/friends_following', profile.friendsFollowing); //追蹤
 
-router.post('/friends_request', profile.friendsRequest); //取消追蹤
+router.post('/friends_request', profile.friendsRequest); //請求加好友
+
+router.put('/friends_waitingForAdded', profile.friendsWaitingForAdded); //等待確認
+
+//router.put('/friends_add', profile.friendsAdd); //新增好友
 
 router.put('/friends_unfollowing', profile.friendsUnfollowing); //取消追蹤
 
-router.put('/friends_add', profile.friendsAdd); //新增好友
-
 router.put('/friends_unadded', profile.friendsUnadded); //取消好友
 
-router.post('/chat_message', chat.createChatRoom); //傳送訊息
+router.post('/create_chatroom', chat.createChatRoom); //創聊天室
 
-router.post('/chat_history', chat.chatHistory); //歷史訊息
+router.put('/send_message', chat.sendMessage); //傳送訊息
+
+router.post('/search_chatHistoryByChatroomID', chat.searchChatHistoryByChatroomID); //查看聊天室歷史訊息
+
+//router.post('/search_chatMessageByMessageID', chat.searchChatMessageByMessageID); //查看某特定訊息(確認中)
+
 
 
 module.exports = router;
