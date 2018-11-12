@@ -284,10 +284,10 @@ module.exports = class Article {
         articleSchemaModel.findOne({_id: fields.articleID})
           .then(doc => {
             doc.listOfContent.push(updateObj);
-            if (fields.privacy != null) doc.privacy = fields.privacy
-            if (fields.category != null) doc.category = fields.category
-            if (fields.title!= null) doc.title = fields.title
-            if (fields.hashTags != null) doc.hashTags = fields.hashTags
+            if (fields.privacy != null) doc.privacy = fields.privacy;
+            if (fields.category != null) doc.category = fields.category;
+            if (fields.title!= null) doc.title = fields.title;
+            if (fields.hashTags != null) doc.hashTags = fields.hashTags;
 
             doc.save()
               .then(value => {
@@ -619,11 +619,13 @@ module.exports = class Article {
                     updateForMedialink.push(photoObj)
                     //console.log(updateForMedialink)
                     updateForMedialink.push(videoObj)
-                    doc.comment[i].mediaLink = updateForMedialink
 
+                    updateCommentObjForListOfComment.mediaLink = updateForMedialink
+                    //console.log(updateCommentObjForListOfComment)
+                    //doc.comment[i].mediaLink = updateForMedialink
+                    doc.comment[i].listOfComment = updateCommentArrayForListOfComment
                   }
-                  if ( doc.comment[i].listOfComment != null) doc.comment[i].listOfComment = updateCommentArrayForListOfComment
-
+                  doc.comment.set(i, doc.comment[i])
                 }
 
                 doc.save()
@@ -639,7 +641,7 @@ module.exports = class Article {
           }, {resource_type: "video"});
         }, {folder: 'Social_Media/mediaLink'});
 
-        //修改留言圖片  //有成功但沒有存db
+        //修改留言圖片
       } else if (files.image != undefined && files.video == null) {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
           photoObj.type = fields.photoType;
@@ -647,17 +649,20 @@ module.exports = class Article {
 
           mediaArray.push(photoObj)
           updateCommentObjForListOfComment.mediaLink = mediaArray
-          updateCommentArrayForListOfComment.push(updateCommentObjForListOfComment);
+          //updateCommentArrayForListOfComment.push(updateCommentObjForListOfComment);
 
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
               for (let i = 0; i < doc.comment.length; i++) {
-                if (doc.comment[i].id == fields.commentID) {
+                if (doc.comment[i].id == fields.commentID ) {
                   //doc.comment[i].mediaLink = photoObj
                   doc.comment[i].listOfComment = updateCommentArrayForListOfComment
+
                 }
                 // if ( doc.comment[i].listOfComment != null) doc.comment[i].listOfComment = updateCommentArrayForListOfComment
+                doc.comment.set(i, doc.comment[i])
               }
+
 
               doc.save()
                 .then(value => {
@@ -680,16 +685,22 @@ module.exports = class Article {
 
           mediaArray.push(videoObj)
           updateCommentObjForListOfComment.mediaLink = mediaArray
-          updateCommentArrayForListOfComment.push(updateCommentObjForListOfComment);
-
+          //updateCommentArrayForListOfComment.push(updateCommentObjForListOfComment);
+         console.log(updateCommentObjForListOfComment)
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
               for (let i = 0; i < doc.comment.length; i++) {
-                if (doc.comment[i].id == fields.commentID) {
+                if (doc.comment[i].id == fields.commentID && doc.comment[i].listOfComment != null) {
                   //doc.comment[i].mediaLink = videoObj
                   doc.comment[i].listOfComment = updateCommentArrayForListOfComment
+                  doc.comment.set(i, doc.comment[i])
                 }
-                if ( doc.comment[i].listOfComment != null) doc.comment[i].listOfComment = updateCommentArrayForListOfComment
+
+                // if ( ) {
+                //   doc.comment[i].listOfComment = updateCommentArrayForListOfComment
+                //   doc.comment.set(i, doc.comment[i])
+                // }
+
               }
 
               doc.save()
@@ -712,16 +723,15 @@ module.exports = class Article {
           .then(doc => {
             for (let i = 0; i < doc.comment.length; i++) {
               if (doc.comment[i].id == fields.commentID) {
-                //console.log(updateCommentArrayForListOfComment)
                 doc.comment[i].listOfComment = updateCommentArrayForListOfComment
+                doc.comment.set(i, doc.comment[i])
                 //console.log(doc.comment[i].listOfComment)
               }
             }
-            //console.log(doc.comment)
+            console.log(doc.comment)
 
-            doc.save()
-              .then(value => {
-                console.log(value)
+            doc.save().then(value => {
+                //console.log(value)
                 let result = {
                   status: "留言修改成功",
                   content: value
