@@ -19,70 +19,76 @@ const Check = require('./service/users_checks.js');
 let check = new Check();
 
 module.exports = class User {
+
   insertUser(req, res, next) {
-    const user = new userSchemaModel({
-      userName: req.body.userName,
-      password: req.body.password,
-      email: req.body.email,
-    });
+    const form = new formidable.IncomingForm();
+    form.parse(req, function (err, fields, files) {
+
+      const user = new userSchemaModel({
+        userName: fields.userName,
+        password: fields.password,
+        email: fields.email,
+        //avatarLink:  default
+        //backgroundLink: String,
+      });
 
 
-    const profile = new profileSchemaModel({
-      userID: user._id,
-      userName: req.body.userName,
-      aboutMe: "",
-      following: [],
-      fans: [],
-      request:[],
+      const profile = new profileSchemaModel({
+        userID: user._id,
+        userName: fields.userName,
+        aboutMe: "",
+        following: [],
+        fans: [],
+        request: [],
 
-    });
+      });
 
-    //檢查是否有重複的使用者
-    userSchemaModel.find({email: user.email}, function (err, docs) {
-      if (!docs.length) {
-            //判斷email格式
-            const checkEmail = check.checkEmail(user.email);
-            //不符合email格式
-            if (checkEmail === false) {
-              let result = {
-                status: "註冊失敗",
-                err: "請輸入正確的Email格式。(如1234@email.com)"
-              }
-              res.json(result)
-
-              //符合email格式
-            } else if (checkEmail === true) {
-              user.save()
-                .then(value => {
-                  let result = {
-                    status: "註冊成功",
-                    content: value
-                  }
-                  res.json(result)
-                })
-                .catch(error => res.json(error));
-
-              //profileArray.push(profile);
-               //console.log(profileArray)
-              profile.save()
-                .then (doc => {
-                  console.log("profile created")
-                })
-                .catch(error => console.log(error));
-
-
-
+      //檢查是否有重複的使用者
+      userSchemaModel.find({email: user.email}, function (err, docs) {
+        if (!docs.length) {
+          //判斷email格式
+          const checkEmail = check.checkEmail(user.email);
+          //不符合email格式
+          if (checkEmail === false) {
+            let result = {
+              status: "註冊失敗",
+              err: "請輸入正確的Email格式。(如1234@email.com)"
             }
-      } else {
-        res.json({
-          result: {
-            status: "註冊失敗",
-            err: "已有重複的Username或Email"
+            res.json(result)
+
+            //符合email格式
+          } else if (checkEmail === true) {
+            user.save()
+              .then(value => {
+                let result = {
+                  status: "註冊成功",
+                  content: value
+                }
+                res.json(result)
+              })
+              .catch(error => res.json(error));
+
+            //profileArray.push(profile);
+            //console.log(profileArray)
+            profile.save()
+              .then(doc => {
+                console.log("profile created")
+              })
+              .catch(error => console.log(error));
+
+
           }
-        })
-        next(new Error("Email exists!"));
-      }
-    });
+        } else {
+          res.json({
+            result: {
+              status: "註冊失敗",
+              err: "已有重複的Username或Email"
+            }
+          })
+          next(new Error("Email exists!"));
+        }
+      })
+    })
   }
 
   loginUser(req, res, next) {
@@ -131,7 +137,7 @@ module.exports = class User {
             }
           });
          }
-    });
+    })
   }
 
   retrieveUser(req, res, next) {

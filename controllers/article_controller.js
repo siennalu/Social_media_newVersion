@@ -34,6 +34,7 @@ module.exports = class Article {
       article.title = fields.title;
       article.category = fields.category;
       article.privacy = fields.privacy;
+      article.hashTags = fields.hashTags;
       contentForObject.time = seconds;
       contentForObject.content = fields.content;
 
@@ -200,6 +201,10 @@ module.exports = class Article {
                 // doc.mediaLink.push(photoObj);
                 // doc.mediaLink.push(videoObj);
                 if (fields.privacy != null) doc.privacy = fields.privacy //文章權限
+                if (fields.category != null) doc.category = fields.category
+                if (fields.title!= null) doc.title = fields.title
+                if (fields.hashTags != null) doc.hashTags = fields.hashTags
+
                 doc.save()
                   .then(posts => {
                     let result = {
@@ -227,6 +232,10 @@ module.exports = class Article {
               doc.listOfContent.push(updateObj);
               //doc.mediaLink.push(photoObj);
               if (fields.privacy != null) doc.privacy = fields.privacy //文章權限
+              if (fields.category != null) doc.category = fields.category
+              if (fields.title!= null) doc.title = fields.title
+              if (fields.hashTags != null) doc.hashTags = fields.hashTags
+
               doc.save()
                 .then(posts => {
                   let result = {
@@ -253,6 +262,10 @@ module.exports = class Article {
               doc.listOfContent.push(updateObj);
               //doc.mediaLink.push(videoObj);
               if (fields.privacy != null) doc.privacy = fields.privacy //文章權限
+              if (fields.category != null) doc.category = fields.category
+              if (fields.title!= null) doc.title = fields.title
+              if (fields.hashTags != null) doc.hashTags = fields.hashTags
+
               doc.save()
                 .then(posts => {
                   let result = {
@@ -271,7 +284,11 @@ module.exports = class Article {
         articleSchemaModel.findOne({_id: fields.articleID})
           .then(doc => {
             doc.listOfContent.push(updateObj);
-            if (fields.privacy != null) doc.privacy = fields.privacy //文章權限
+            if (fields.privacy != null) doc.privacy = fields.privacy
+            if (fields.category != null) doc.category = fields.category
+            if (fields.title!= null) doc.title = fields.title
+            if (fields.hashTags != null) doc.hashTags = fields.hashTags
+
             doc.save()
               .then(value => {
                 let result = {

@@ -8,6 +8,8 @@ let userSchema = new Schema({
   userName : String,
   password : String,
   email : String,
+  avatarLink:String,
+  backgroundLink: String,
  }, { versionKey: false });
 
 userSchema.pre('save', function (next) {
