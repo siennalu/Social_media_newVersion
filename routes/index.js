@@ -56,9 +56,9 @@ router.put('/profile_setting', profile.profileSetting); //profile
 
 //router.put('/friends_following', profile.friendsFollowing); //追蹤
 
-router.post('/friends_request', profile.friendsRequest); //請求加好友
+router.post('/friends_request', profile.friendsRequest); //他人發出請求加好友
 
-router.put('/friends_waitingForAdded', profile.friendsWaitingForAdded); //等待確認
+router.put('/friends_requestWaitingForAdded', profile.friendsRequestWaitingForAdded); //自己確認他人的請求
 
 //router.put('/friends_add', profile.friendsAdd); //新增好友
 

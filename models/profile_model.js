@@ -14,11 +14,8 @@ let profileSchema = new Schema({
   friends: Array,
   avatarLink : String,
   backgroundLink: String,
-  request:Array,
-  // posts: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'Article'
-  // },
+  requestByOthers:Array,
+  requestByMyself:Array,
 }, { versionKey: false });
 
 let profile_schema = mongoose.model('Profile', profileSchema);

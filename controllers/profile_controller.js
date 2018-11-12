@@ -311,57 +311,85 @@ module.exports = class Profile {
 
 
 
-  friendsRequest(req, res, next){
-    //發出請求等待確認
-    profileSchemaModel.findOne({userID:req.body.userID_request}) //被請求確認的人
-      .then(doc => {
-        if(doc.request.indexOf(req.body.userID_requested) == -1)
-        doc.request.push(req.body.userID_requested) //發出請求確認的人
 
-        doc.save().then(value => {
-          let result = {
-            status: "正等待好友確認",
-            content: value
-          }
-          res.json(result);
-        })
+  friendsRequest(req, res, next) {
+    //發出好友請求
+    profileSchemaModel.findOne({userID:req.body.userID_request}) //發出請求確認的人
+      .then(doc => {
+        if (doc.requestByMyself.indexOf(req.body.userID_requested) == -1)//被請求確認的人
+          doc.requestByMyself.push(req.body.userID_requested)
+
+        profileSchemaModel.findOne({userID: req.body.userID_requested}) //被請求確認的人
+          .then(data => {
+            if (data.requestByOthers.indexOf(req.body.userID_request) == -1) {
+              data.requestByOthers.push(req.body.userID_request) //發出請求確認的人
+            }
+            //doc.requestByMyself
+            data.save()
+            doc.save().then(value => {
+              let result = {
+                status: "已發出好友請求",
+                content: value
+              }
+              res.json(result);
+            })
+          })
       })
   }
 
-  friendsWaitingForAdded(req, res, next) {
-  profileSchemaModel.findOne({userID:req.body.userID_request}) //被請求確認的人
+
+  friendsRequestWaitingForAdded(req, res, next) {
+  //欲確認他人請求
+    profileSchemaModel.findOne({userID:req.body.userID_adder}) //確認的人
     .then(doc=>{
+
       let temp =0;
-      if (doc.request.indexOf(req.body.userID_requested) != -1) {   //確認請求確認的ID是否在request中
-        temp = doc.request.indexOf(req.body.userID_requested)
-        doc.request.splice(temp, 1); //刪掉user 加入friends中
+      if (doc.requestByOthers.indexOf(req.body.userID_added) != -1) {   //確認請求確認的ID是否在requestByOthers中
+        temp = doc.requestByOthers.indexOf(req.body.userID_added)
+        doc.requestByOthers.splice(temp, 1); //刪掉user 加入friends中
         //加好友同時追蹤、成為粉絲(?
-        doc.friends.push(req.body.userID_requested)
-        doc.following.push(req.body.userID_requested)
-        doc.fans.push(req.body.userID_requested)
-
-
-        profileSchemaModel.findOne({userID: req.body.userID_requested})
-          .then(doc=> {
-            //確認是否已為粉絲
-            if (doc.fans.indexOf(req.body.userID_request) == -1) doc.fans.push(req.body.userID_request)
-            doc.save()
-              .then(value => {
-                console.log("fans added")
-              })
-              .catch(error => console.log(error));
-          })
-          .catch(error => console.log(error));
-
-        doc.save().then(value => {
-          let result = {
-            status: "好友已確認，已成為好友",
-            content: value
-          }
-          res.json(result);
-        })
+        doc.friends.push(req.body.userID_added)
+        doc.following.push(req.body.userID_added)
+        doc.fans.push(req.body.userID_added)
       }
+        profileSchemaModel.findOne({userID:req.body.userID_added}) //被請求確認的人
+            .then(data=> {
+
+              let temp = 0;
+              if (data.requestByMyself.indexOf(req.body.userID_adder) != -1) {   //確認請求確認的ID是否在requestByOthers中
+                temp = doc.requestByMyself.indexOf(req.body.userID_adder)
+                data.requestByMyself.splice(temp, 1); //刪掉user 加入friends中
+                //加好友同時追蹤、成為粉絲(?
+                data.friends.push(req.body.userID_adder)
+                data.following.push(req.body.userID_adder)
+                data.fans.push(req.body.userID_adder)
+
+                // profileSchemaModel.findOne({userID: req.body.userID_requested})
+                //   .then(doc=> {
+                //     //確認是否已為粉絲
+                //     if (doc.fans.indexOf(req.body.userID_requested) == -1) doc.fans.push(req.body.userID_requested)
+                //     doc.save()
+                //       .then(value => {
+                //         console.log("fans added")
+                //       })
+                //       .catch(error => console.log(error));
+                //   })
+                //   .catch(error => console.log(error));
+                data.save()
+                doc.save().then(value => {
+                  let result = {
+                    status: "好友已確認，已成為好友",
+                    content: value
+                  }
+                  res.json(result);
+                })
+              }
+            })
     })
   }
+
+
+
+
 }
 

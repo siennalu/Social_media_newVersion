@@ -1,5 +1,6 @@
 const articleSchemaModel = require('../models/article_model.js');
 const profileSchemaModel = require('../models/profile_model.js');
+const userSchemaModel = require('../models/user_model.js');
 //const profileArray = require('./users_controller.js').profileArray;
 const uniqid = require('uniqid');
 const formidable = require('formidable');
@@ -371,37 +372,37 @@ module.exports = class Article {
       commentObjForListOfComment.time = seconds;
       commentObjForListOfComment.content = fields.content;
       commentArrayForListOfComment.push(commentObjForListOfComment);
-      //forComment.listOfComment = commentArrayForListOfComment;
 
       forComment.commenterID = fields.commenterID
-      //forComment.mediaLink = [];
       forComment.likes = [];
       forComment.commenter_avatarLink = [];
       forComment.numberOfLikes = forComment.likes.length;
       forComment.delete = false;
+      forComment.commenterName = "";
       let mediaArray =[]
       //留言圖片和影片
       if (files.image != null && files.video != null) {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
           photoObj.type = fields.photoType;
           photoObj.link = resultPhotoUrl.secure_url;
-          //forComment.mediaLink.push(photoObj)
           mediaArray.push(photoObj)
-          //commentObjForListOfComment.mediaLink = mediaArray;
-          //forComment.listOfContent = commentArrayForListOfComment;
-
 
           cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
             videoObj.type = fields.videoType;
             videoObj.link = resultVideoUrl.secure_url;
-            //forComment.mediaLink.push(videoObj);
+
 
             mediaArray.push(videoObj)
             commentObjForListOfComment.mediaLink = mediaArray;
             forComment.listOfComment = commentArrayForListOfComment;
 
+
             articleSchemaModel.findOne({_id: fields.articleID})
               .then(doc => {
+                userSchemaModel.findOne({_id:fields.commenterID})
+                  .then(user=>{
+                    forComment.commenterName = user.userName
+                  })
                 doc.comment.push(forComment)
                 doc.save()
                   .then(value => {
@@ -428,6 +429,10 @@ module.exports = class Article {
 
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
+              userSchemaModel.findOne({_id:fields.commenterID})
+                .then(user=>{
+                  forComment.commenterName = user.userName
+                })
               doc.comment.push(forComment)
               doc.save()
                 .then(value => {
@@ -453,6 +458,10 @@ module.exports = class Article {
 
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
+              userSchemaModel.findOne({_id:fields.commenterID})
+                .then(user=>{
+                  forComment.commenterName = user.userName
+                })
               doc.comment.push(forComment)
               doc.save()
                 .then(value => {
@@ -473,8 +482,12 @@ module.exports = class Article {
 
         articleSchemaModel.findOne({_id: fields.articleID})
           .then(doc => {
-
+            userSchemaModel.findOne({_id:fields.commenterID})
+              .then(user=>{
+                forComment.commenterName = user.userName
+              })
             doc.comment.push(forComment);
+
             doc.save()
               .then(value => {
                 let result = {
