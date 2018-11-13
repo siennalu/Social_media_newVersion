@@ -180,20 +180,27 @@ module.exports = class Profile {
           profileSchemaModel.findOne({userID: fields.userID})
             .then(data => {
                 data.avatarLink = result.secure_url;
-            data.save()
-              .then(value => {
-                let result = {
-                  status: "大頭貼上傳成功",
-                  content: value
-                }
-                res.json(result)
-              })
-              .catch(error => {
-                let result = {
-                  status: "大頭貼上傳失敗",
-                  err: "伺服器錯誤，請稍後再試"
-                }
-                res.json(error)
+
+              userSchemaModel.findOne({_id: fields.userID})
+              .then(doc => {
+                doc.avatarLink = result.secure_url;
+
+                doc.save()
+                data.save()
+                  .then(value => {
+                    let result = {
+                      status: "大頭貼上傳成功",
+                      content: value
+                    }
+                    res.json(result)
+                  })
+                  .catch(error => {
+                    let result = {
+                      status: "大頭貼上傳失敗",
+                      err: "伺服器錯誤，請稍後再試"
+                    }
+                    res.json(error)
+                  })
               })
             })
             .catch(error => {
@@ -225,21 +232,27 @@ module.exports = class Profile {
             .then(data => {
               console.log(data)
               data.backgroundLink = result.secure_url;
-              console.log(data)
-              data.save()
-                .then(value => {
-                  let result = {
-                    status: "背景照上傳成功",
-                    content: value
-                  }
-                  res.json(result)
-                })
-                .catch(error => {
-                  let result = {
-                    status: "背景照上傳失敗",
-                    err: "伺服器錯誤，請稍後再試"
-                  }
-                  res.json(error)
+
+              userSchemaModel.findOne({_id: fields.userID})
+                .then(doc => {
+                  doc.backgroundLink = result.secure_url;
+
+                  doc.save()
+                  data.save()
+                    .then(value => {
+                      let result = {
+                        status: "背景照上傳成功",
+                        content: value
+                      }
+                      res.json(result)
+                    })
+                    .catch(error => {
+                      let result = {
+                        status: "背景照上傳失敗",
+                        err: "伺服器錯誤，請稍後再試"
+                      }
+                      res.json(error)
+                    })
                 })
             })
         }

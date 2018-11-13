@@ -8,7 +8,7 @@ let userSchema = new Schema({
   userName : String,
   password : String,
   email : String,
-  avatarLink: {type: Array, default:'default'},
+  avatarLink: Array,
   backgroundLink: Array,
  }, { versionKey: false });
 
