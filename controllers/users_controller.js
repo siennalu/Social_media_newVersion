@@ -28,8 +28,8 @@ module.exports = class User {
         userName: fields.userName,
         password: fields.password,
         email: fields.email,
-        //avatarLink:  default
-        //backgroundLink: String,
+        avatarLink: [],
+        backgroundLink:[],
       });
 
 
@@ -40,8 +40,16 @@ module.exports = class User {
         following: [],
         fans: [],
         request: [],
-
       });
+      let userphotoArray = []
+      let coverPhotoArray =[]
+      cloudinary.uploader.upload('./controllers/defaultPhoto/userPhotoDefault.png', function (resultPhotoUrl) {
+        userphotoArray.push(resultPhotoUrl.secure_url)
+        user.avatarLink = userphotoArray;
+
+      cloudinary.uploader.upload('./controllers/defaultPhoto/coverPhoto.png', function (resultPhotoUrl) {
+        coverPhotoArray.push(resultPhotoUrl.secure_url)
+        user.backgroundLink = coverPhotoArray;
 
       //檢查是否有重複的使用者
       userSchemaModel.find({email: user.email}, function (err, docs) {
@@ -68,6 +76,7 @@ module.exports = class User {
               })
               .catch(error => res.json(error));
 
+
             //profileArray.push(profile);
             //console.log(profileArray)
             profile.save()
@@ -88,7 +97,9 @@ module.exports = class User {
           next(new Error("Email exists!"));
         }
       })
+      })
     })
+   })
   }
 
   loginUser(req, res, next) {

@@ -585,7 +585,7 @@ module.exports = class Article {
       })
   }
 
-//有成功但沒有存db
+
   updateComment(req, res ,next) {
     let updateCommentArrayForListOfComment = [];
     let updateCommentObjForListOfComment = {};
@@ -615,14 +615,9 @@ module.exports = class Article {
               .then(doc => {
                 for (let i = 0; i < doc.comment.length; i++) {
                   if (doc.comment[i].id == fields.commentID) {
-                   // console.log("123"+doc.comment[i].mediaLink)
                     updateForMedialink.push(photoObj)
-                    //console.log(updateForMedialink)
                     updateForMedialink.push(videoObj)
-
                     updateCommentObjForListOfComment.mediaLink = updateForMedialink
-                    //console.log(updateCommentObjForListOfComment)
-                    //doc.comment[i].mediaLink = updateForMedialink
                     doc.comment[i].listOfComment = updateCommentArrayForListOfComment
                   }
                   doc.comment.set(i, doc.comment[i])
@@ -649,15 +644,12 @@ module.exports = class Article {
 
           mediaArray.push(photoObj)
           updateCommentObjForListOfComment.mediaLink = mediaArray
-          //updateCommentArrayForListOfComment.push(updateCommentObjForListOfComment);
 
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
               for (let i = 0; i < doc.comment.length; i++) {
                 if (doc.comment[i].id == fields.commentID ) {
-                  //doc.comment[i].mediaLink = photoObj
                   doc.comment[i].listOfComment = updateCommentArrayForListOfComment
-
                 }
                 // if ( doc.comment[i].listOfComment != null) doc.comment[i].listOfComment = updateCommentArrayForListOfComment
                 doc.comment.set(i, doc.comment[i])
@@ -695,12 +687,6 @@ module.exports = class Article {
                   doc.comment[i].listOfComment = updateCommentArrayForListOfComment
                   doc.comment.set(i, doc.comment[i])
                 }
-
-                // if ( ) {
-                //   doc.comment[i].listOfComment = updateCommentArrayForListOfComment
-                //   doc.comment.set(i, doc.comment[i])
-                // }
-
               }
 
               doc.save()
@@ -718,20 +704,17 @@ module.exports = class Article {
 
         //修改文字
       } else if (files.image == null && files.video == null) {
-        //updateCommentArrayForListOfComment.push(updateCommentObjForListOfComment);
         articleSchemaModel.findOne({_id: fields.articleID})
           .then(doc => {
             for (let i = 0; i < doc.comment.length; i++) {
               if (doc.comment[i].id == fields.commentID) {
                 doc.comment[i].listOfComment = updateCommentArrayForListOfComment
                 doc.comment.set(i, doc.comment[i])
-                //console.log(doc.comment[i].listOfComment)
               }
             }
             console.log(doc.comment)
 
             doc.save().then(value => {
-                //console.log(value)
                 let result = {
                   status: "留言修改成功",
                   content: value
@@ -748,20 +731,13 @@ module.exports = class Article {
   deleteComment(req, res, next){
    articleSchemaModel.findOne({_id: req.body.articleID})
       .then(doc => {
-        //console.log(doc)
-
         for (let i = 0 ; i < doc.comment.length;i++) {
           if(doc.comment[i].id == req.body.commentID) {
             doc.comment[i].delete = true;
-            //console.log(doc)
-            //delete doc.comment[i].id[req.body.commentID]
-            //console.log(doc)
             let temp = doc.comment[i].id.indexOf(req.body.commentID)
-            //console.log(temp)
             doc.comment.splice(temp, 1);
           }
         }
-
 
         doc.save().then(value => {
           let result = {
