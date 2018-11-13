@@ -419,7 +419,7 @@ module.exports = class Article {
                 userSchemaModel.findOne({_id:fields.commenterID})
                   .then(user=>{
                     forComment.commenterName = user.userName
-                  })
+
                 doc.comment.push(forComment)
                 doc.save()
                   .then(value => {
@@ -430,6 +430,7 @@ module.exports = class Article {
                     res.json(result)
                   })
                   .catch(error => res.json(error));
+                })
               }, {resource_type: "video"});
           }, {folder: 'Social_Media/mediaLink'});
         })
@@ -449,7 +450,7 @@ module.exports = class Article {
               userSchemaModel.findOne({_id:fields.commenterID})
                 .then(user=>{
                   forComment.commenterName = user.userName
-                })
+
               doc.comment.push(forComment)
               doc.save()
                 .then(value => {
@@ -460,6 +461,7 @@ module.exports = class Article {
                   res.json(result)
                 })
                 .catch(error => res.json(error));
+              })
             })
             .catch(error => res.json(error));
         }, {folder: 'Social_Media/mediaLink'});
@@ -478,7 +480,7 @@ module.exports = class Article {
               userSchemaModel.findOne({_id:fields.commenterID})
                 .then(user=>{
                   forComment.commenterName = user.userName
-                })
+
               doc.comment.push(forComment)
               doc.save()
                 .then(value => {
@@ -489,6 +491,7 @@ module.exports = class Article {
                   res.json(result)
                 })
                 .catch(error => res.json(error));
+              })
             })
             .catch(error => res.json(error));
         }, {folder: 'Social_Media/mediaLink'});
@@ -502,8 +505,8 @@ module.exports = class Article {
             userSchemaModel.findOne({_id:fields.commenterID})
               .then(user=>{
                 forComment.commenterName = user.userName
-              })
-            doc.comment.push(forComment);
+                doc.comment.push(forComment);
+
 
             doc.save()
               .then(value => {
@@ -521,6 +524,7 @@ module.exports = class Article {
                 res.json(error)
               })
           })
+        })
       }
 
     })
