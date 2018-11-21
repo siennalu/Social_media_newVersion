@@ -735,10 +735,16 @@ module.exports = class Article {
   deleteComment(req, res, next){
    articleSchemaModel.findOne({_id: req.body.articleID})
       .then(doc => {
+        //console.log(doc)
         for (let i = 0 ; i < doc.comment.length;i++) {
           if(doc.comment[i].id == req.body.commentID) {
+            console.log(doc.comment[i].id)
+            console.log(req.body.commentID)
+            console.log(doc.comment[i])
             doc.comment[i].delete = true;
-            let temp = doc.comment[i].id.indexOf(req.body.commentID)
+            //let temp = doc.comment[i].id.indexOf(req.body.commentID)
+            let temp = doc.comment[i]
+            console.log(temp)
             doc.comment.splice(temp, 1);
           }
         }

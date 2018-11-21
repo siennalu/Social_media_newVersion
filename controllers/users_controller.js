@@ -39,17 +39,21 @@ module.exports = class User {
         aboutMe: "",
         following: [],
         fans: [],
-        request: [],
+        avatarLink:[],
+        backgroundLink:[],
       });
+
       let userphotoArray = []
       let coverPhotoArray =[]
       cloudinary.uploader.upload('./controllers/defaultPhoto/userPhotoDefault.png', function (resultPhotoUrl) {
         userphotoArray.push(resultPhotoUrl.secure_url)
         user.avatarLink = userphotoArray;
+        profile.avatarLink = userphotoArray
 
       cloudinary.uploader.upload('./controllers/defaultPhoto/coverPhoto.png', function (resultPhotoUrl) {
         coverPhotoArray.push(resultPhotoUrl.secure_url)
         user.backgroundLink = coverPhotoArray;
+        profile.backgroundLink = coverPhotoArray
 
       //檢查是否有重複的使用者
       userSchemaModel.find({email: user.email}, function (err, docs) {
@@ -66,6 +70,7 @@ module.exports = class User {
 
             //符合email格式
           } else if (checkEmail === true) {
+
             user.save()
               .then(value => {
                 let result = {
@@ -76,9 +81,6 @@ module.exports = class User {
               })
               .catch(error => res.json(error));
 
-
-            //profileArray.push(profile);
-            //console.log(profileArray)
             profile.save()
               .then(doc => {
                 console.log("profile created")

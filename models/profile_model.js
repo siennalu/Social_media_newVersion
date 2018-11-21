@@ -12,8 +12,8 @@ let profileSchema = new Schema({
   following: Array,
   fans: Array,
   friends: Array,
-  avatarLink : String,
-  backgroundLink: String,
+  avatarLink : Array,
+  backgroundLink: Array,
   requestByOthers:Array,
   requestByMyself:Array,
 }, { versionKey: false });

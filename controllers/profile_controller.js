@@ -87,43 +87,43 @@ module.exports = class Profile {
   }
 
 
-  // friendsFollowing(req, res, next) {
-  //   profileSchemaModel.findOne({userID: req.body.userID_followed})  //被追蹤的人
-  //     .then(data => {
-  //       console.log(data)
-  //       //確認是否已存在ID
-  //       if (data.fans.indexOf(req.body.userID_following) == -1) data.fans.push(req.body.userID_following)
-  //       data.save()
-  //         .then(value => {
-  //           console.log("fans created")
-  //         })
-  //         .catch(error => console.log(error));
-  //     })
-  //     .catch(error => console.log(error));
-  //   profileSchemaModel.findOne({userID: req.body.userID_following})   //追蹤的人
-  //     .then(doc => {
-  //       console.log(doc)
-  //       //確認是否已追蹤
-  //       if (doc.following.indexOf(req.body.userID_followed) == -1) doc.following.push(req.body.userID_followed)
-  //       doc.save()
-  //         .then(result => {
-  //           console.log("following created")
-  //         })
-  //         .catch(error => console.log(error));
-  //       let result = {
-  //         status: "追蹤成功",
-  //         content: doc
-  //       }
-  //       res.json(result)
-  //     })
-  //     .catch(error => {
-  //       let result = {
-  //         status: "追蹤失敗",
-  //         err: "伺服器錯誤，請稍後再試"
-  //       }
-  //       res.json(error)
-  //     })
-  // }
+  friendsFollowing(req, res, next) {
+    profileSchemaModel.findOne({userID: req.body.userID_followed})  //被追蹤的人
+      .then(data => {
+        console.log(data)
+        //確認是否已存在ID
+        if (data.fans.indexOf(req.body.userID_following) == -1) data.fans.push(req.body.userID_following)
+        data.save()
+          .then(value => {
+            console.log("fans created")
+          })
+          .catch(error => console.log(error));
+      })
+      .catch(error => console.log(error));
+    profileSchemaModel.findOne({userID: req.body.userID_following})   //追蹤的人
+      .then(doc => {
+        console.log(doc)
+        //確認是否已追蹤
+        if (doc.following.indexOf(req.body.userID_followed) == -1) doc.following.push(req.body.userID_followed)
+        doc.save()
+          .then(result => {
+            console.log("following created")
+          })
+          .catch(error => console.log(error));
+        let result = {
+          status: "追蹤成功",
+          content: doc
+        }
+        res.json(result)
+      })
+      .catch(error => {
+        let result = {
+          status: "追蹤失敗",
+          err: "伺服器錯誤，請稍後再試"
+        }
+        res.json(error)
+      })
+  }
 
 
   friendsUnfollowing(req, res, next) {
@@ -186,6 +186,13 @@ module.exports = class Profile {
                 doc.avatarLink = result.secure_url;
 
                 doc.save()
+                  .then(value=>{
+                    console.log("avatarLink already saved to db")
+                  })
+                  .catch(error =>{
+                    console.log("avatarLink is error to save to db")
+                  })
+
                 data.save()
                   .then(value => {
                     let result = {
@@ -238,6 +245,13 @@ module.exports = class Profile {
                   doc.backgroundLink = result.secure_url;
 
                   doc.save()
+                    .then(value =>{
+                      console.log("backgroungLink already saved to db")
+                    })
+                    .catch(error => {
+                      console.log("backgroungLink is error to save to db")
+                    })
+
                   data.save()
                     .then(value => {
                       let result = {
@@ -298,11 +312,41 @@ module.exports = class Profile {
   //     .catch(error => console.log(error));
   // }
 
+
   friendsUnadded(req, res, next){
+    profileSchemaModel.findOne({userID: req.body.userID_unadded})//欲取消的ID
+      .then(doc => {
+
     profileSchemaModel.findOne({userID: req.body.userID})  // 自己
       .then(data => {
         //確認是否已為好友
-        if (data.friends.indexOf(req.body.userID_unadded) != -1) data.friends.splice(data.friends.indexOf(req.body.userID_unadded))
+
+        if (data.friends.indexOf(req.body.userID_unadded) != -1  && doc.friends.indexOf(req.body.userID) != -1) {
+          let numOfFriendsInUserIDUnadded = data.friends.indexOf(req.body.userID_unadded)
+          let numOfUserIDUnaddedInFans = data.fans.indexOf(req.body.userID_unadded)
+          let numOfUserIDUnaddedInFollowing = data.following.indexOf(req.body.userID_unadded)
+
+          let numOfFriendsInUserID = doc.friends.indexOf(req.body.userID)
+          let numOfUserIDInFans = doc.fans.indexOf(req.body.userID)
+          let numOfUserIDInFollowing = doc.following.indexOf(req.body.userID)
+
+          data.friends.splice(numOfFriendsInUserIDUnadded,1)
+          data.fans.splice(numOfUserIDUnaddedInFans,1)
+          data.following.splice(numOfUserIDUnaddedInFollowing,1)
+
+          doc.friends.splice(numOfFriendsInUserID,1)
+          doc.fans.splice(numOfUserIDInFans,1)
+          doc.following.splice(numOfUserIDInFollowing,1)
+
+        }
+
+        doc.save()
+          .then(value=>{
+            console.log("")
+          })
+          .catch(error =>{
+            console.log(error)
+          })
         data.save()
           .then(value => {
             let result = {
@@ -318,6 +362,9 @@ module.exports = class Profile {
             }
             res.json(error)
           })
+
+        })
+      .catch(error => console.log(error));
       })
       .catch(error => console.log(error));
   }
@@ -329,23 +376,48 @@ module.exports = class Profile {
     //發出好友請求
     profileSchemaModel.findOne({userID:req.body.userID_request}) //發出請求確認的人
       .then(doc => {
-        if (doc.requestByMyself.indexOf(req.body.userID_requested) == -1)//被請求確認的人
-          doc.requestByMyself.push(req.body.userID_requested)
-
         profileSchemaModel.findOne({userID: req.body.userID_requested}) //被請求確認的人
           .then(data => {
-            if (data.requestByOthers.indexOf(req.body.userID_request) == -1) {
-              data.requestByOthers.push(req.body.userID_request) //發出請求確認的人
-            }
-            //doc.requestByMyself
-            data.save()
-            doc.save().then(value => {
-              let result = {
-                status: "已發出好友請求",
-                content: value
+            //雙方是否尚未為好友
+            if(doc.friends.indexOf(req.body.userID_requested) == -1 && data.friends.indexOf(req.body.userID_request) == -1){
+              if(doc.requestByOthers.indexOf(req.body.userID_requested) == -1 && data.requestByMyself.indexOf(req.body.userID_request)==-1) {
+                //A加B
+                if (doc.requestByMyself.indexOf(req.body.userID_requested) == -1 && data.requestByOthers.indexOf(req.body.userID_request) == -1) {
+                  doc.requestByMyself.push(req.body.userID_requested)//b
+                  data.requestByOthers.push(req.body.userID_request)//a
+                }
+
+                //B加A
+              } else {
+                let numOfRequestByMyself = data.requestByMyself.indexOf(req.body.userID_request)
+                let numOfRequestByOthers = doc.requestByOthers.indexOf(req.body.userID_requested)
+
+                doc.requestByOthers.splice(numOfRequestByOthers, 1)
+                data.requestByMyself.splice(numOfRequestByMyself, 1)
+
+                doc.friends.push(req.body.userID_requested)
+                data.friends.push(req.body.userID_request)
+                doc.fans.push(req.body.userID_requested)
+                data.fans.push(req.body.userID_request)
+                doc.following.push(req.body.userID_requested)
+                data.following.push(req.body.userID_request)
               }
-              res.json(result);
-            })
+
+              data.save()
+                .then(value => {
+                  console.log("")
+                })
+                .catch(error => {
+                  console.log("error")
+                })
+              doc.save().then(value => {
+                let result = {
+                  status: "已發出好友請求",
+                  content: value
+                }
+                res.json(result);
+              })
+           }
           })
       })
   }
@@ -361,9 +433,10 @@ module.exports = class Profile {
         temp = doc.requestByOthers.indexOf(req.body.userID_added)
         doc.requestByOthers.splice(temp, 1); //刪掉user 加入friends中
         //加好友同時追蹤、成為粉絲(?
-        doc.friends.push(req.body.userID_added)
-        doc.following.push(req.body.userID_added)
-        doc.fans.push(req.body.userID_added)
+
+        if(doc.friends.indexOf(req.body.userID_added) == -1) doc.friends.push(req.body.userID_added)
+        if(doc.following.indexOf(req.body.userID_added)== -1) doc.following.push(req.body.userID_added)
+        if(doc.fans.indexOf(req.body.userID_added)== -1) doc.fans.push(req.body.userID_added)
       }
         profileSchemaModel.findOne({userID:req.body.userID_added}) //被請求確認的人
             .then(data=> {
@@ -373,9 +446,9 @@ module.exports = class Profile {
                 temp = doc.requestByMyself.indexOf(req.body.userID_adder)
                 data.requestByMyself.splice(temp, 1); //刪掉user 加入friends中
                 //加好友同時追蹤、成為粉絲(?
-                data.friends.push(req.body.userID_adder)
-                data.following.push(req.body.userID_adder)
-                data.fans.push(req.body.userID_adder)
+                if(data.friends.indexOf(req.body.userID_adder) == -1) data.friends.push(req.body.userID_adder)
+                if(data.following.indexOf(req.body.userID_adder) == -1) data.following.push(req.body.userID_adder)
+                if(data.fans.indexOf(req.body.userID_adder) == -1) data.fans.push(req.body.userID_adder)
 
                 // profileSchemaModel.findOne({userID: req.body.userID_requested})
                 //   .then(doc=> {
@@ -389,6 +462,12 @@ module.exports = class Profile {
                 //   })
                 //   .catch(error => console.log(error));
                 data.save()
+                  .then(value => {
+                    console.log("")
+                  })
+                  .catch(error => {
+                    console.log("error")
+                  })
                 doc.save().then(value => {
                   let result = {
                     status: "好友已確認，已成為好友",
@@ -400,6 +479,41 @@ module.exports = class Profile {
             })
     })
   }
+
+
+  friendsUnrequest(req, res, next){
+    profileSchemaModel.findOne({userID:req.body.userID_request}) //發出請求確認的人
+      .then(doc => {
+        profileSchemaModel.findOne({userID: req.body.userID_requested}) //被請求確認的人
+          .then(data => {
+            //確認請求人是否有在被請求人的名單中
+            if (data.requestByOthers.indexOf(req.body.userID_request) != -1 && doc.requestByMyself.indexOf(req.body.userID_requested)!= -1){
+              let numOfRequestByMyself = doc.requestByMyself.indexOf(req.body.userID_requested)
+              let numOfRequestByOthers = data.requestByOthers.indexOf(req.body.userID_request)
+
+              //將請求人的ID刪除
+              data.requestByOthers.splice(numOfRequestByOthers, 1)
+              doc.requestByMyself.splice(numOfRequestByMyself, 1)
+            }
+
+            data.save()
+              .then(value => {
+                console.log("")
+              })
+              .catch(error => {
+                console.log("error")
+              })
+
+            doc.save().then(value => {
+              let result = {
+                status: "已取消好友請求",
+                content: value
+              }
+              res.json(result);
+            })
+          })
+      })
+    }
 
 
 
