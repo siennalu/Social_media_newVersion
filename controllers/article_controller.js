@@ -171,6 +171,19 @@ module.exports = class Article {
     res.json(articleArray)
   }
 
+  searchArticleByCategory(req, res, next) {
+   let articleArray= []
+    articleSchemaModel.find({delete: false, privacy: "public"})
+      .then(doc=>{
+        //console.log(doc)
+         articleArray.push(doc)
+        console.log(articleArray)
+      doc.category
+
+      })
+  }
+
+
   updateArticle(req, res, next) {
     let updateObj = {};
     let photoObj = {};

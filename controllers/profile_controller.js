@@ -29,13 +29,16 @@ module.exports = class Profile {
   }
 
   searchArticleByUserID(req, res, next) {
+    let articleArray=[]
     articleSchemaModel.find({authorID: req.body.userID})
       .then(data => {
-        let result = {
-          totalOfArticle: data.length, //文章數
-          contentOfArticle: data, //所有文章
-        }
-        res.json(result)
+        //console.log(data)
+        // let result = {
+        //   //totalOfArticle: data.length, //文章數
+        //   contentOfArticle: data, //所有文章
+        // }
+        // articleArray.push(result)
+        res.json(data)
       })
       .catch(error => {
         let result = {
@@ -401,6 +404,7 @@ module.exports = class Profile {
                 data.fans.push(req.body.userID_request)
                 doc.following.push(req.body.userID_requested)
                 data.following.push(req.body.userID_request)
+
               }
 
               data.save()

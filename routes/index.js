@@ -28,6 +28,8 @@ router.post('/search_articleByArticleID', article.searchArticleByArticleID); //g
 
 router.get('/search_article', article.searchArticle); // get all of article
 
+router.post('/search_articleByCategory', article.searchArticleByCategory); // show articles by the same category
+
 router.put('/delete_article', article.deleteArticle); //delete
 
 router.put('/likes_article', article.likesArticle); //likes
