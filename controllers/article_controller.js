@@ -759,7 +759,7 @@ module.exports = class Article {
             let temp = doc.comment[i]
             console.log(temp)
             doc.comment.splice(temp, 1);
-            doc.comment.set(i, doc.comment[i])
+            //doc.comment.set(i, doc.comment[i])
           }
         }
 
