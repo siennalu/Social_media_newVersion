@@ -200,15 +200,12 @@ module.exports = class Article {
             sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
           }
 
-
           //留言大頭貼
           if(sortedArticle[i].comment != null){
             for (let j = 0; j < sortedArticle[i].comment.length; j++){
               //console.log(sortedArticle[i].comment[j].id)
               let commentAvatarLink = commenterIDToAvatarLink(sortedArticle[i].comment[j].commenterID)
               if (commentAvatarLink.length == 1) {
-                console.log("123")
-                console.log(commentAvatarLink)
                 sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
               }
               else if(commentAvatarLink.length > 1) {
@@ -235,37 +232,11 @@ module.exports = class Article {
         function commenterIDToAvatarLink(id) {
           for (let i = 0; i < all_profile.length; i++) {
             if (id == all_profile[i].userID) {
-              // console.log(all_profile[i].avatarLink)
-              // console.log("123")
               return all_profile[i].avatarLink;
             }
           }
         }
-
-        //
-        //     //console.log(all_profile)
-        //     // articleSchemaModel.find({delete: false, privacy: "public"})
-        //     //   .then(all_article => {
-        //     for (let i = 0; i <= all_article.length - 1; i++) {
-        //       let authorAvatarLink = commenterIDToAvatarLink(all_article[i].authorID)
-        //       all_article[i].avatarLink.push(authorAvatarLink[0])
-        //     }
-        //
-        //     for (let i = 0; i < all_article.length; i++) {
-        //       for (let j = 0; j < all_article[i].comment.length; j++) {
-        //
-        //         let commenterAvatarLink = commenterIDToAvatarLink(all_article[i].comment[j].commenterID);
-        //         // all_article[i].comment[j].commenter_avatarLink.set(all_article[i].comment[j].commenter_avatarLink.length,commenterAvatarLink )
-        //         //console.log(commenterAvatarLink[0])
-        //         all_article[i].comment[j].commenter_avatarLink.push(commenterAvatarLink[0]);
-        //       }
-        //     }
-        //
-        //     // input: commenterID, output: avatarLink
-
-
-
-            res.json(final)
+          res.json(final)
        })
       })
   }
@@ -328,50 +299,32 @@ module.exports = class Article {
 
   //撈五篇文章
   searchMoreArticlesByCategory(req, res, next) {
-    //給分類
-
   articleSchemaModel.find({delete: false, privacy: "public"})
     .then(doc=> {
+     //根據分類給文章
+      let allArticleArray=[];
+      let getFiveArticles=[];
+      for(let i = 0; i < doc.length; i++){
+        if (doc[i].category === req.body.category){
+          allArticleArray = searchCategory(req.body.category)
+        }
+      }
 
-      // //文章排序
-      // let sortedArticle = doc.sort(function (b, a) {
-      //   return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
-      // });
-
-      // let allArticle=[];
-      // for(let i = 0; i < 5; i++){
-      //   allArticle[i] = searchSameCategory(req.body.category);
-      //   console.log(allArticle)
-      // }
-
-
-      // function searchSameCategory(category){
-      //   let res = [];
-      //
-      //   for(let i = 0; i <= doc.length; i++){
-      //     if(category === doc[i].category && doc.indexOf(doc[i]._id)== -1 && res.length < 5){
-      //       res.push(doc[i]);
-      //       console.log(res)
-      //       console.log("123")
-      //     }
-      //   }
-      //   return res;
-      // }
+      for(let j = 0; j < 5; j++){
+        getFiveArticles.push(allArticleArray[j])
+      }
+      res.json(getFiveArticles);
 
 
-      //res.json(allArticle)
-
-
-        let res = [];
-        for(let i = 0; i <= doc.length; i++){
-          if(res.length < 5 && doc[i].category !== "" & req.body.category === doc[i].category && res.indexOf(doc[i]._id)== -1 ) {
-              res.push(doc[i]);
-              console.log(res)
-              console.log("123")
+      function searchCategory(category){
+        let articleArray=[]
+        for(let j = 0; j < doc.length; j++) {
+          if (category === doc[j].category && articleArray.indexOf(doc[j].id) == -1){
+            articleArray.push(doc[j])
           }
         }
-        res.json(res)
-
+        return articleArray
+      }
     })
   }
 
