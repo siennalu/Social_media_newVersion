@@ -28,6 +28,7 @@ module.exports = class Article {
         listOfContent: [],
         delete: false,
         title: fields.title,
+        //countForArticle: Number,
       });
       article.authorID = fields.authorID;
       article.author = fields.author;
@@ -172,16 +173,120 @@ module.exports = class Article {
   }
 
   searchArticleByCategory(req, res, next) {
-   let articleArray= []
+    let categoryArray =[]
+    let articleArray=[]
+    let allArticleArray=[]
+
     articleSchemaModel.find({delete: false, privacy: "public"})
       .then(doc=>{
-        //console.log(doc)
-         articleArray.push(doc)
-        console.log(articleArray)
-      doc.category
 
+        //文章排序
+        let sortedArticle = doc.sort(function (b, a) {
+          return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
+        });
+
+
+        let final = [];
+        let terminateNumber = (sortedArticle.length < (req.body.count * 10 - 1))? sortedArticle.length - 1 : (req.body.count * 10 - 1);
+        for(let i = ((req.body.count * 10 - 1) - 9); i <= terminateNumber; i++){
+            //console.log(sortedArticle[i].category);
+            final[i-((req.body.count * 10 - 1) - 9)] = searchSameCategory(sortedArticle[i].category, sortedArticle[i]);
+
+            final[i-((req.body.count * 10 - 1) - 9)].unshift(sortedArticle[i]);
+        }
+
+
+        function searchSameCategory(category, itself){
+          let res = [];
+          for(let i = 0; i < sortedArticle.length; i++){
+            if(category === sortedArticle[i].category && sortedArticle[i] !== itself){
+              res.push(sortedArticle[i]);
+            }
+          }
+          return res;
+        }
+
+
+        res.json(final)
       })
   }
+
+        // //console.log(sortedArticle.length)
+        // //載入最新的10篇文章
+        // for(let i=0;i<10;i++) {
+        //   //console.log(doc[i])
+        //   articleArray.push(doc[i])
+        //
+        //   //console.log(articleArray[0])
+        //
+        //   //需修改
+        //   //再各自陣列中找出分類
+        //   if (sortedArticle[i].category == doc[i].category && articleArray.indexOf(doc[i]._id) ==-1) {
+        //     //console.log("123")
+        //     articleArray.push(doc[i])
+        //     //console.log(articleArray[0])
+        //     //console.log(articleArray.indexOf(doc[0]._id))
+        //   }
+        //
+        //   //console.log(articleArray)
+        //   empty()
+        //  //console.log(sortedArticle[i].category)
+        // }
+        //
+        //
+        //
+        // // for(let i=0;i<doc.length;i++) {
+        // //
+        // //
+        // //
+        // //   //選10篇文章各category的分類
+        // //   if (categoryArray.indexOf(doc[i].category) == -1) categoryArray.push(doc[i].category)
+        // // }
+        // //
+        // // for (let category in categoryArray){
+        // //   for (let i = 0; i < doc.length; i++) {
+        // //     //console.log(categoryArray.length)
+        // //      //相同的分類放至陣列中
+        // //     if (categoryArray[category] == doc[i].category && articleOfArray.indexOf(doc[i]) == -1) {
+        // //       articleOfArray.push(doc[i])
+        // //       console.log(categoryArray.length) //3 有3種分類
+        // //     }
+        // //
+        // //    }
+        // //    allArticleArray.push(articleOfArray)
+        // //    empty()
+        // //  }
+        // //
+        // //
+        // //  res.json(allArticleArray)
+        // //
+        //  //清空陣列
+        //  function empty(){
+        //   articleArray=[]
+        //
+        //  }
+
+
+  // //撈五篇文章
+  // getArticles(req, res, next) {
+  //   //給分類
+  //
+  // articleSchemaModel.find({delete: false, privacy: "public"})
+  //   .then(doc=> {
+  //     let array = [];
+  //
+  //     for (let i = 0; i < 5; i++) {
+  //       if (category === doc[i].category && doc[i] !== itself) {
+  //         array.push(doc[i]);
+  //       }
+  //     }
+  //     return array;
+  //
+  //   res.json(array)
+  //
+  //
+  //   })
+  // }
 
 
   updateArticle(req, res, next) {

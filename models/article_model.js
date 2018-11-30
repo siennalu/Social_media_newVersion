@@ -19,6 +19,7 @@ let articleSchema = new Schema({
   mediaLink: Array,
   hashTags: Array,
   delete: Boolean,
+  countForArticle : Number,
   // postedBy: {
   //   type: mongoose.Schema.Types.ObjectId,
   //   ref: 'Profile'
