@@ -193,14 +193,27 @@ module.exports = class Article {
 
           //文章大頭貼
           let authorAvatarLink = commenterIDToAvatarLink(sortedArticle[i].authorID)
-          sortedArticle[i].avatarLink.push(authorAvatarLink[0])
+          //console.log(authorAvatarLink)
+
+          if (authorAvatarLink.length == 1) sortedArticle[i].avatarLink = authorAvatarLink
+          else if(authorAvatarLink.length > 1) {
+            sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+          }
+
 
           //留言大頭貼
           if(sortedArticle[i].comment != null){
             for (let j = 0; j < sortedArticle[i].comment.length; j++){
-              console.log(sortedArticle[i].comment[j].id)
+              //console.log(sortedArticle[i].comment[j].id)
               let commentAvatarLink = commenterIDToAvatarLink(sortedArticle[i].comment[j].commenterID)
-              sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[0])
+              if (commentAvatarLink.length == 1) {
+                console.log("123")
+                console.log(commentAvatarLink)
+                sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
+              }
+              else if(commentAvatarLink.length > 1) {
+                sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+              }
             }
           }
           //console.log(sortedArticle[i].category);
@@ -218,10 +231,12 @@ module.exports = class Article {
           }
           return res;
         }
-        
+
         function commenterIDToAvatarLink(id) {
           for (let i = 0; i < all_profile.length; i++) {
             if (id == all_profile[i].userID) {
+              // console.log(all_profile[i].avatarLink)
+              // console.log("123")
               return all_profile[i].avatarLink;
             }
           }

@@ -182,11 +182,11 @@ module.exports = class Profile {
         else {
           profileSchemaModel.findOne({userID: fields.userID})
             .then(data => {
-                data.avatarLink = result.secure_url;
+                data.avatarLink.push(result.secure_url);
 
               userSchemaModel.findOne({_id: fields.userID})
               .then(doc => {
-                doc.avatarLink = result.secure_url;
+                doc.avatarLink.push(result.secure_url);
 
                 doc.save()
                   .then(value=>{
