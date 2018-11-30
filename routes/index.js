@@ -30,7 +30,7 @@ router.get('/search_article', article.searchArticle); // get all of article
 
 router.post('/search_articleByCategory', article.searchArticleByCategory); // show articles by the same category
 
-//router.post('/getArticles', article.getArticles); //撈五篇文章
+router.post('/searchMoreArticlesByCategory', article.searchMoreArticlesByCategory); //撈五篇文章
 
 router.put('/delete_article', article.deleteArticle); //delete
 
