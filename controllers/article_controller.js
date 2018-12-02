@@ -310,7 +310,10 @@ module.exports = class Article {
         }
       }
 
-      for(let j = 0; j < 5; j++){
+      //已存在之全部的文章ID
+     let allArticleID = req.body.articleID
+     for(let j = 0; j < allArticleArray.length; j++){
+       if(allArticleID.indexOf(allArticleArray[j].id) == -1 && getFiveArticles.length < 5)
         getFiveArticles.push(allArticleArray[j])
       }
       res.json(getFiveArticles);
