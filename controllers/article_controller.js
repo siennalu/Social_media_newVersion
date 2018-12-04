@@ -301,33 +301,84 @@ module.exports = class Article {
   searchMoreArticlesByCategory(req, res, next) {
   articleSchemaModel.find({delete: false, privacy: "public"})
     .then(doc=> {
-     //根據分類給文章
-      let allArticleArray=[];
-      let getFiveArticles=[];
-      for(let i = 0; i < doc.length; i++){
-        if (doc[i].category === req.body.category){
-          allArticleArray = searchCategory(req.body.category)
-        }
-      }
-
-      //已存在之全部的文章ID
-     let allArticleID = req.body.articleID
-     for(let j = 0; j < allArticleArray.length; j++){
-       if(allArticleID.indexOf(allArticleArray[j].id) == -1 && getFiveArticles.length < 5)
-        getFiveArticles.push(allArticleArray[j])
-      }
-      res.json(getFiveArticles);
-
-
-      function searchCategory(category){
-        let articleArray=[]
-        for(let j = 0; j < doc.length; j++) {
-          if (category === doc[j].category && articleArray.indexOf(doc[j].id) == -1){
-            articleArray.push(doc[j])
+      profileSchemaModel.find({})
+        .then(all_profile => {
+          //根據分類給文章
+          let allArticleArray = [];
+          let getFiveArticles = [];
+          let getSortedArticles = [];
+          for (let i = 0; i < doc.length; i++) {
+            if (doc[i].category === req.body.category) {
+              allArticleArray = searchCategory(req.body.category)
+            }
           }
-        }
-        return articleArray
-      }
+
+          //已存在之全部的文章ID
+          let allArticleID = req.body.articleID
+          for (let j = 0; j < allArticleArray.length; j++) {
+            if (allArticleID.indexOf(allArticleArray[j].id) == -1 && getFiveArticles.length < 5)
+              getFiveArticles.push(allArticleArray[j])
+
+
+            //文章排序
+            getSortedArticles = getFiveArticles.sort(function (b, a) {
+              return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
+            });
+
+            for (let i = 0; i < getFiveArticles.length; i++) {
+              if (getFiveArticles[i] != null) {
+                //文章大頭貼
+                let authorAvatarLink = commenterIDToAvatarLink(getFiveArticles[i].authorID)
+                if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
+                else if (authorAvatarLink.length > 1) {
+                  getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
+                }
+
+            //留言大頭貼
+              if(getFiveArticles[i].comment != null){
+                for (let j = 0; j < getFiveArticles[i].comment.length; j++){
+                  //console.log(sortedArticle[i].comment[j].id)
+                  let commentAvatarLink = commenterIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
+                  if (commentAvatarLink.length == 1) {
+                    getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
+                  }
+                  else if(commentAvatarLink.length > 1) {
+                    getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                  }
+                }
+              }
+                
+              }
+            }
+
+
+          }
+
+          res.json(getSortedArticles);
+
+
+          function searchCategory(category) {
+            let articleArray = []
+            for (let j = 0; j < doc.length; j++) {
+              if (category === doc[j].category && articleArray.indexOf(doc[j].id) == -1) {
+                articleArray.push(doc[j])
+              }
+            }
+            return articleArray
+          }
+
+
+          function commenterIDToAvatarLink(id) {
+            for (let i = 0; i < all_profile.length; i++) {
+              if (id == all_profile[i].userID) {
+                return all_profile[i].avatarLink;
+
+              }
+            }
+          }
+
+
+      })
     })
   }
 
