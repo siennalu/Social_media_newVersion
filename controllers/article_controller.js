@@ -193,12 +193,11 @@ module.exports = class Article {
 
           //文章大頭貼
           let authorAvatarLink = commenterIDToAvatarLink(sortedArticle[i].authorID)
-          //console.log(authorAvatarLink)
-
-          if (authorAvatarLink.length == 1) sortedArticle[i].avatarLink = authorAvatarLink
-          else if(authorAvatarLink.length > 1) {
-            sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
-          }
+          sortedArticle[i].avatarLink = authorAvatarLink
+          // if (authorAvatarLink.length == 1) sortedArticle[i].avatarLink = authorAvatarLink
+          // else if(authorAvatarLink.length > 1) {
+          //   sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+          // }
 
           //留言大頭貼
           if(sortedArticle[i].comment != null){
@@ -232,6 +231,7 @@ module.exports = class Article {
         function commenterIDToAvatarLink(id) {
           for (let i = 0; i < all_profile.length; i++) {
             if (id == all_profile[i].userID) {
+              //console.log(all_profile[i].avatarLink)
               return all_profile[i].avatarLink;
             }
           }
