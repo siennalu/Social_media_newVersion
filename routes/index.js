@@ -4,11 +4,13 @@ const User = require('../controllers/users_controller');
 const Article = require('../controllers/article_controller');
 const Profile = require('../controllers/profile_controller');
 const Chat = require('../controllers/chat_controller');
+const Maintain = require('../controllers/maintain_controller');
 
 let user = new User();
 let article = new Article();
 let profile = new Profile();
 let chat = new Chat();
+let maintain = new Maintain();
 
 router.post('/register', user.insertUser); //create(register)
 
@@ -81,6 +83,11 @@ router.post('/search_chatHistoryByChatroomID', chat.searchChatHistoryByChatroomI
 
 //router.post('/search_chatMessageByMessageID', chat.searchChatMessageByMessageID); //查看某特定訊息(確認中)
 
+router.post('/insertServerStatus', maintain.insertServerModel); //執行一次
+
+router.put('/put_updateMaintainStatus', maintain.updateMaintainStatus); //修改維護訊息
+
+router.get('/get_searchMaintainStatus', maintain.getMaintainStatus); //修改維護訊息
 
 
 module.exports = router;

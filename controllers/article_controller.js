@@ -28,7 +28,6 @@ module.exports = class Article {
         listOfContent: [],
         delete: false,
         title: fields.title,
-        //countForArticle: Number,
       });
       article.authorID = fields.authorID;
       article.author = fields.author;

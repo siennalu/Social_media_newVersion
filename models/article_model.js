@@ -2,11 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let articleSchema = new Schema({
- authorID: String,
- //  authorID:{
- //    type: mongoose.Schema.Types.ObjectId,
- //    ref: 'User'
- //  },
+  authorID: String,
   author: String,
   title: String,
   category: String,
@@ -20,19 +16,7 @@ let articleSchema = new Schema({
   hashTags: Array,
   delete: Boolean,
   countForArticle : Number,
-  // postedBy: {
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'Profile'
-  // },
 
-  // comments: [{
-  //   text: String,
-  //   postedBy: {
-  //     //type: mongoose.Schema.Types.ObjectId,
-  //     type: mongoose.Schema.Types.ObjectId,
-  //     ref: 'User'
-  //   }
-  // }]
 }, { versionKey: false });
 
 let article_schema = mongoose.model('Article', articleSchema);
