@@ -55,15 +55,24 @@ module.exports = class Article {
             contentForArray.push(contentForObject);
             article.listOfContent = contentForArray;
 
-            article.save()
-              .then(posts => {
-                let result = {
-                  status: "圖片和影片發文成功",
-                  article: posts
-                }
-                res.json(result)
-              })
-              .catch(error => res.json(error));
+            if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+              article.save()
+                .then(posts => {
+                  let result = {
+                    status: "圖片和影片發文成功",
+                    article: posts
+                  }
+                  res.json(result)
+                })
+                .catch(error => res.json(error))
+            } else {
+              let result = {
+                status: "發文失敗",
+                err: "請輸入作者ID"
+              }
+               res.json(result);
+            }
+
           }, {resource_type: "video"});
         }, {folder: 'Social_Media/mediaLink'});
 
@@ -77,15 +86,23 @@ module.exports = class Article {
           contentForArray.push(contentForObject);
           article.listOfContent = contentForArray;
 
-          article.save()
-            .then(posts => {
-              let result = {
-                status: "圖片發文成功",
-                article: posts
-              }
-              res.json(result)
-            })
-            .catch(error => res.json(error));
+          if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+            article.save()
+              .then(posts => {
+                let result = {
+                  status: "圖片發文成功",
+                  article: posts
+                }
+                res.json(result)
+              })
+              .catch(error => res.json(error))
+          } else {
+            let result = {
+              status: "發文失敗",
+              err: "請輸入作者ID"
+            }
+            res.json(result);
+          }
         }, {folder: 'Social_Media/mediaLink'});
 
         //上傳影片
@@ -98,73 +115,89 @@ module.exports = class Article {
           contentForArray.push(contentForObject);
           article.listOfContent = contentForArray;
 
-          article.save()
-            .then(posts => {
-              let result = {
-                status: "影片發文成功",
-                article: posts
-              }
-              res.json(result)
-            })
-            .catch(error => res.json(error));
+          if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+            article.save()
+              .then(posts => {
+                let result = {
+                  status: "影片發文成功",
+                  article: posts
+                }
+                res.json(result)
+              })
+              .catch(error => res.json(error))
+          } else {
+            let result = {
+              status: "發文失敗",
+              err: "請輸入作者ID"
+            }
+            res.json(result);
+          }
         }, {resource_type: "video"});
 
       } else if (files.image == null && files.video == null) {
         contentForArray.push(contentForObject);
         article.listOfContent = contentForArray;
 
-        article.save()
-          .then(posts => {
-            let result = {
-              status: "發文成功",
-              article: posts
-            }
-            res.json(result)
-          })
-          .catch(error => res.json(error));
+        if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+          article.save()
+            .then(posts => {
+              let result = {
+                status: "發文成功",
+                article: posts
+              }
+              res.json(result)
+            })
+            .catch(error => res.json(error))
+        } else {
+          let result = {
+            status: "發文失敗",
+            err: "請輸入作者ID"
+          }
+          res.json(result);
+        }
       }
     })
   }
 
-  searchArticle(req, res, next) {
-    profileSchemaModel.find({})
-      .then(all_profile=> {
-        //console.log(all_profile)
-       articleSchemaModel.find({delete: false, privacy: "public"})
-          .then(all_article => {
-            for (let i = 0; i <= all_article.length - 1; i++){
-              let authorAvatarLink = commenterIDToAvatarLink(all_article[i].authorID)
-              all_article[i].avatarLink.push(authorAvatarLink[0])
-            }
-
-            for(let i = 0; i < all_article.length; i++){
-              for(let j = 0; j < all_article[i].comment.length; j++){
-
-                let commenterAvatarLink = commenterIDToAvatarLink(all_article[i].comment[j].commenterID);
-               // all_article[i].comment[j].commenter_avatarLink.set(all_article[i].comment[j].commenter_avatarLink.length,commenterAvatarLink )
-                //console.log(commenterAvatarLink[0])
-                all_article[i].comment[j].commenter_avatarLink.push(commenterAvatarLink[0]);
-              }
-            }
-
-            // input: commenterID, output: avatarLink
-            function commenterIDToAvatarLink(id){
-              for(let i = 0; i < all_profile.length; i++){
-                if(id == all_profile[i].userID){
-                  return all_profile[i].avatarLink;
-                }
-              }
-            }
-
-            let sortedArticle = all_article.sort(function (b, a) {
-              return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
-            });
-            res.json(sortedArticle);
-          })
-      })
-
-
-  }
+  // searchArticle(req, res, next) {
+  //   profileSchemaModel.find({})
+  //     .then(all_profile=> {
+  //       //console.log(all_profile)
+  //      articleSchemaModel.find({delete: false, privacy: "public"})
+  //         .then(all_article => {
+  //           for (let i = 0; i <= all_article.length - 1; i++){
+  //             let authorAvatarLink = commenterIDToAvatarLink(all_article[i].authorID)
+  //             all_article[i].avatarLink.push(authorAvatarLink[0])
+  //           }
+  //
+  //           for(let i = 0; i < all_article.length; i++){
+  //             for(let j = 0; j < all_article[i].comment.length; j++){
+  //
+  //               let commenterAvatarLink = commenterIDToAvatarLink(all_article[i].comment[j].commenterID);
+  //              // all_article[i].comment[j].commenter_avatarLink.set(all_article[i].comment[j].commenter_avatarLink.length,commenterAvatarLink )
+  //               //console.log(commenterAvatarLink[0])
+  //               all_article[i].comment[j].commenter_avatarLink.push(commenterAvatarLink[0]);
+  //             }
+  //           }
+  //
+  //           // input: commenterID, output: avatarLink
+  //           function commenterIDToAvatarLink(id){
+  //             for(let i = 0; i < all_profile.length; i++){
+  //               if(id == all_profile[i].userID){
+  //                 return all_profile[i].avatarLink;
+  //               }
+  //             }
+  //           }
+  //
+  //           let sortedArticle = all_article.sort(function (b, a) {
+  //             return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
+  //           });
+  //           res.json(sortedArticle);
+  //         })
+  //     })
+  //
+  //
+  // }
 
   async searchArticleByArticleID(req, res, next) {
     let articleArray = []
@@ -190,21 +223,22 @@ module.exports = class Article {
         let final = [];
         let terminateNumber = (sortedArticle.length < (req.body.count * 10 - 1)) ? sortedArticle.length - 1 : (req.body.count * 10 - 1);
         for (let i = ((req.body.count * 10 - 1) - 9); i <= terminateNumber; i++) {
-
           //文章大頭貼
           let authorAvatarLink = commenterIDToAvatarLink(sortedArticle[i].authorID)
-          sortedArticle[i].avatarLink = authorAvatarLink
-          // if (authorAvatarLink.length == 1) sortedArticle[i].avatarLink = authorAvatarLink
-          // else if(authorAvatarLink.length > 1) {
-          //   sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
-          // }
+          //sortedArticle[i].avatarLink = authorAvatarLink
+          if (authorAvatarLink.length == 1) {
+            sortedArticle[i].avatarLink = authorAvatarLink
+          }
+          else if(authorAvatarLink.length > 1) {
+            sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+          }
 
           //留言大頭貼
           if(sortedArticle[i].comment != null){
             for (let j = 0; j < sortedArticle[i].comment.length; j++){
               //console.log(sortedArticle[i].comment[j].id)
               let commentAvatarLink = commenterIDToAvatarLink(sortedArticle[i].comment[j].commenterID)
-              if (commentAvatarLink.length == 1) {
+              if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
                 sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
               }
               else if(commentAvatarLink.length > 1) {
@@ -347,15 +381,11 @@ module.exports = class Article {
                   }
                 }
               }
-                
               }
             }
-
-
           }
 
           res.json(getSortedArticles);
-
 
           function searchCategory(category) {
             let articleArray = []
@@ -376,12 +406,59 @@ module.exports = class Article {
               }
             }
           }
-
-
       })
     })
   }
 
+
+  // updateArticle(req, res, next) {
+  //   let updateObj = {};
+  //     let photoObj = {};
+  //     let videoObj = {};
+  //     let seconds = Math.round(Date.now() / 1000);
+  //     let mediaArray=[]
+  //   const form = new formidable.IncomingForm();
+  //     form.parse(req, function (err, fields, files) {
+  //
+  //   //原mediaLink物件
+  //   let contentFromFrontEnd = fields.mediaLink;
+  //   //修改圖片或影片
+  //   let imageFromFrontEnd = fields.image;
+  //   let videoFromFrontEnd = fields.video;
+  //
+  //     articleSchemaModel.findOne({_id: fields.articleID})
+  //     .then(doc => {
+  //       //只修改文字(傳送文字修改後之物件)
+  //      if(contentFromFrontEnd !== null && imageFromFrontEnd === null && videoFromFrontEnd === null) {
+  //        doc.listOfContent.push(contentFromFrontEnd);
+  //
+  //        //修改圖片(傳送原物件及修改之圖片)
+  //      }
+  //
+  //
+  //      //
+  //      // else if (imageFromFrontEnd !== null && contentFromFrontEnd !== null && videoFromFrontEnd === null ) {
+  //      //   //解析圖片
+  //      //   cloudinary.uploader.upload(files.imageFromFrontEnd.path, function (resultPhotoUrl) {
+  //      //     photoObj.type = fields.photoType;
+  //      //     photoObj.link = resultPhotoUrl.secure_url;
+  //      //     mediaArray.push(photoObj)
+  //      //
+  //      //     doc.listOfContent.push(contentFromFrontEnd);
+  //      //
+  //      //   }, {folder: 'Social_Media/mediaLink'});
+  //      //
+  //      // }
+  //
+  //
+  //
+  //
+  //
+  //
+  //     })
+  //
+  //   })
+  // }
 
   updateArticle(req, res, next) {
     let updateObj = {};
@@ -539,46 +616,66 @@ module.exports = class Article {
   }
 
   likesArticle(req, res, next) {
+    let objForLikes = {};
+    let likesArray = [];
     articleSchemaModel.findOne({ _id: req.body.articleID})
       .then(doc => {
-        if (doc.likes.indexOf(req.body.likesPersonID) == -1) {
-          doc.likes.push(req.body.likesPersonID);
-          doc.numberOfLikes = doc.likes.length;
-        }
-        doc.save().then(value => {
-          let result = {
-            status: "已按讚",
-            content: value
-          }
-          res.json(result);
-        })
-          .catch(error => {
-            let result = {
-              status: "按讚失敗",
-              err: "伺服器錯誤，請稍後再試"
+        userSchemaModel.findOne({_id: req.body.likesPersonID})
+          .then(user => {
+            for(let i = 0; i < doc.likes.length; i++) {
+              likesArray.push(doc.likes[i].userID);
             }
-            res.json(error)
+            if(likesArray.indexOf(req.body.likesPersonID) == -1) {
+              objForLikes.userName = user.userName;
+              objForLikes.userID = req.body.likesPersonID;
+              objForLikes.avatarLink = user.avatarLink;
+              doc.likes.push(objForLikes);
+              doc.numberOfLikes = doc.likes.length;
+            }
+
+            doc.save()
+              .then(value => {
+                let result = {
+                  status: "已按讚",
+                  content: value
+                };
+                res.json(result);
+              })
+              .catch(error => {
+                let result = {
+                  status: "按讚失敗",
+                  err: "伺服器錯誤，請稍後再試"
+                };
+                res.json(error)
+              })
           })
+          .catch(error => { console.log("未找到userID")})
       })
+      .catch(error => { console.log(error)})
   }
 
   dislikesArticle(req, res, next) {
+    let likesArray = [];
     articleSchemaModel.findOne({ _id: req.body.articleID})
       .then(doc => {
-        let temp = doc.likes.indexOf(req.body.dislikesPersonID);
-        doc.likes.splice(temp, 1);
-        doc.numberOfLikes = doc.likes.length;
-        doc.save().then(value => {
-          let result = {
-            status: "收回讚成功",
-            content: value
-          }
-          res.json(result);
-        })
+        for(let i = 0; i < doc.likes.length; i++) {
+          likesArray.push(doc.likes[i]);
+          let temp = likesArray.indexOf(req.body.dislikesPersonID);
+          doc.likes.splice(temp, 1);
+          doc.numberOfLikes = doc.likes.length;
+        }
+
+        doc.save()
+          .then(value => {
+            let result = {
+              status: "收回讚成功",
+              content: value
+            }
+            res.json(result);
+          })
           .catch(error => {
             let result = {
               status: "收回讚失敗",
-
               err: "伺服器錯誤，請稍後再試"
             }
             res.json(error)
@@ -642,7 +739,8 @@ module.exports = class Article {
                     res.json(result)
                   })
                   .catch(error => res.json(error));
-                })
+                 })
+                  .catch(error => res.json(error));
               }, {resource_type: "video"});
           }, {folder: 'Social_Media/mediaLink'});
         })
@@ -674,6 +772,7 @@ module.exports = class Article {
                 })
                 .catch(error => res.json(error));
               })
+                .catch(error => res.json(error));
             })
             .catch(error => res.json(error));
         }, {folder: 'Social_Media/mediaLink'});
@@ -704,6 +803,7 @@ module.exports = class Article {
                 })
                 .catch(error => res.json(error));
               })
+                .catch(error => res.json(error));
             })
             .catch(error => res.json(error));
         }, {folder: 'Social_Media/mediaLink'});
@@ -718,7 +818,6 @@ module.exports = class Article {
               .then(user=>{
                 forComment.commenterName = user.userName
                 doc.comment.push(forComment);
-
 
             doc.save()
               .then(value => {
@@ -735,10 +834,10 @@ module.exports = class Article {
                 }
                 res.json(error)
               })
+              .catch(error => res.json(error));
           })
         })
       }
-
     })
   }
 

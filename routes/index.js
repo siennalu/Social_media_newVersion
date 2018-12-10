@@ -22,11 +22,11 @@ router.post('/add_article', article.postArticle); //post article
 
 router.put('/update_article', article.updateArticle); //update article
 
-router.get('/search_article', article.searchArticle); //get all of the article
+//router.get('/search_article', article.searchArticle); //get all of the article
 
 router.post('/search_articleByArticleID', article.searchArticleByArticleID); //get the article by articleID
 
-router.get('/search_article', article.searchArticle); // get all of article
+//router.get('/search_article', article.searchArticle); // get all of article
 
 router.post('/search_articleByCategory', article.searchArticleByCategory); // show articles by the same category
 
