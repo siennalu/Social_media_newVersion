@@ -648,20 +648,28 @@ module.exports = class Article {
                 res.json(error)
               })
           })
-          .catch(error => { console.log("未找到userID")})
+          .catch(error => {
+            console.log("未找到userID")
+          });
       })
-      .catch(error => { console.log(error)})
+      .catch(error => {
+        console.log(error)
+      });
   }
 
   dislikesArticle(req, res, next) {
     let likesArray = [];
     articleSchemaModel.findOne({ _id: req.body.articleID})
       .then(doc => {
+        //所有的likes先放置Array中
         for(let i = 0; i < doc.likes.length; i++) {
-          likesArray.push(doc.likes[i]);
-          let temp = likesArray.indexOf(req.body.dislikesPersonID);
-          doc.likes.splice(temp, 1);
-          doc.numberOfLikes = doc.likes.length;
+          likesArray.push(doc.likes[i].userID);
+
+          if(doc.likes[i].userID === req.body.dislikesPersonID && likesArray.indexOf(req.body.dislikesPersonID) != -1) {
+            let temp = likesArray.indexOf(req.body.dislikesPersonID);
+            doc.likes.splice(temp, 1);
+            doc.numberOfLikes = doc.likes.length;
+          }
         }
 
         doc.save()
@@ -677,9 +685,12 @@ module.exports = class Article {
               status: "收回讚失敗",
               err: "伺服器錯誤，請稍後再試"
             }
-            res.json(error)
+            res.json(error);
           })
       })
+      .catch(err => {
+        console.log(err)
+      });
   }
 
   commentArticle(req, res, next) {
@@ -842,45 +853,75 @@ module.exports = class Article {
 
 
   likesComment(req, res, next) {
+    let objForLikes = {};
+    let likesArray = [];
     articleSchemaModel.findOne({_id: req.body.articleID})
       .then(doc => {
-        for (let i = 0; i < doc.comment.length; i++) {
-          if (doc.comment[i].id === req.body.commentID && doc.comment[i].likes.indexOf(req.body.likesPersonID) == -1)
-            doc.comment[i].likes.push(req.body.likesPersonID);
-            doc.comment[i].numberOfLikes = doc.comment[i].likes.length;
-            doc.comment.set(i, doc.comment[i])
-        }
-        doc.save()
-          .then(value => {
-            let result = {
-              status: "按讚成功",
-              content: value
+        userSchemaModel.findOne({_id: req.body.likesPersonID})
+          .then(user => {
+            for (let i = 0; i < doc.comment.length; i++) {
+              //先將目前的userID放入likesArray中
+              for (let j = 0 ;j < doc.comment[i].likes.length; j++) {
+                if (doc.comment[i].id === req.body.commentID) {
+                  console.log(doc.comment[i].likes[j].userID);
+                  likesArray.push(doc.comment[i].likes[j].userID);
+                  console.log(likesArray)
+                }
+              }
+
+              if (doc.comment[i].id === req.body.commentID && likesArray.indexOf(req.body.likesPersonID) == -1  ) {
+                objForLikes.userName = user.userName;
+                objForLikes.userID = req.body.likesPersonID;
+                objForLikes.avatarLink = user.avatarLink;
+                doc.comment[i].likes.push(objForLikes);
+                doc.comment[i].numberOfLikes = doc.comment[i].likes.length;
+                doc.comment.set(i, doc.comment[i]);
+              }
             }
-            res.json(result);
+            doc.save()
+              .then(value => {
+                let result = {
+                  status: "按讚成功",
+                  content: value
+                }
+                res.json(result);
+              })
+              .catch(error => {
+                let result = {
+                  status: "按讚失敗",
+                  err: "伺服器錯誤，請稍後再試"
+                }
+                res.json(error)
+              })
           })
-          .catch(error => {
-            let result = {
-              status: "按讚失敗",
-              err: "伺服器錯誤，請稍後再試"
-            }
-            res.json(error)
+          .catch(err => {
+            console.log(err);
           })
+      })
+      .catch(err => {
+        console.log(err);
       })
   }
 
   dislikesComment(req, res, next) {
-    let temp = 0
+    let temp = 0;
+    let likesArray = [];
     articleSchemaModel.findOne({_id: req.body.articleID})
       .then(doc => {
         for (let i = 0; i < doc.comment.length; i++) {
-          if (doc.comment[i].id == req.body.commentID && doc.comment[i].likes.indexOf(req.body.dislikesPersonID) != -1){
-              temp = doc.comment[i].likes.indexOf(req.body.dislikesPersonID);
-              doc.comment[i].likes.splice(temp, 1);
-              doc.comment[i].numberOfLikes = doc.comment[i].likes.length;
-            }
-          //array.set(第幾個元素,內容)
-          doc.comment.set(i, doc.comment[i])
-  }
+          //先將目前likes的userID放入likesArray中
+          for (let j = 0; j < doc.comment[i].likes.length; j++) {
+            likesArray.push(doc.comment[i].likes[j].userID);
+          }
+          if (doc.comment[i].id === req.body.commentID && likesArray.indexOf(req.body.dislikesPersonID) != -1 ) {
+            let temp = likesArray.indexOf(req.body.dislikesPersonID);
+            doc.comment[i].likes.splice(temp, 1);
+            doc.comment[i].numberOfLikes = doc.comment[i].likes.length;
+            //array.set(第幾個元素,內容)
+            doc.comment.set(i, doc.comment[i])
+          }
+        }
+
         doc.save()
           .then(value => {
             let result = {
@@ -896,6 +937,9 @@ module.exports = class Article {
             }
             res.json(error)
           })
+      })
+      .catch(err => {
+        console.log(err);
       })
   }
 
