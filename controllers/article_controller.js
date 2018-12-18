@@ -158,45 +158,7 @@ module.exports = class Article {
     })
   }
 
-  // searchArticle(req, res, next) {
-  //   profileSchemaModel.find({})
-  //     .then(all_profile=> {
-  //       //console.log(all_profile)
-  //      articleSchemaModel.find({delete: false, privacy: "public"})
-  //         .then(all_article => {
-  //           for (let i = 0; i <= all_article.length - 1; i++){
-  //             let authorAvatarLink = commenterIDToAvatarLink(all_article[i].authorID)
-  //             all_article[i].avatarLink.push(authorAvatarLink[0])
-  //           }
-  //
-  //           for(let i = 0; i < all_article.length; i++){
-  //             for(let j = 0; j < all_article[i].comment.length; j++){
-  //
-  //               let commenterAvatarLink = commenterIDToAvatarLink(all_article[i].comment[j].commenterID);
-  //              // all_article[i].comment[j].commenter_avatarLink.set(all_article[i].comment[j].commenter_avatarLink.length,commenterAvatarLink )
-  //               //console.log(commenterAvatarLink[0])
-  //               all_article[i].comment[j].commenter_avatarLink.push(commenterAvatarLink[0]);
-  //             }
-  //           }
-  //
-  //           // input: commenterID, output: avatarLink
-  //           function commenterIDToAvatarLink(id){
-  //             for(let i = 0; i < all_profile.length; i++){
-  //               if(id == all_profile[i].userID){
-  //                 return all_profile[i].avatarLink;
-  //               }
-  //             }
-  //           }
-  //
-  //           let sortedArticle = all_article.sort(function (b, a) {
-  //             return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
-  //           });
-  //           res.json(sortedArticle);
-  //         })
-  //     })
-  //
-  //
-  // }
+
 
   async searchArticleByArticleID(req, res, next) {
     let articleArray = []
@@ -205,260 +167,358 @@ module.exports = class Article {
     res.json(articleArray)
   }
 
-  searchArticleByCategory(req, res, next) {
-    let categoryArray =[]
-    let articleArray=[]
-    let allArticleArray=[]
+
+  searchArticleByCategoryAndTheSameAuthor(req, res, next) {
+    let centerArray = [];
+    let categoryArray = [];
+
+    articleSchemaModel.find({delete: false, privacy: "public"})
+      .then(doc=> {
+
+        profileSchemaModel.find({})
+          .then(all_profile => {
+
+            //先過濾是否為friendsArticles
+            let friendsArticles = getFriendsArticle(req.body.userID, all_profile, doc);
+
+            //文章排序
+            let sortedArticle = friendsArticles.sort(function (b, a) {
+              return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
+            });
+
+            let terminateNumber = sortedArticle.length < (req.body.count * 10)- 1 ? sortedArticle.length : (req.body.count * 10)- 1;
+            for(let i = (req.body.count * 10 - 1)- 9; i <= terminateNumber; i++) {
+              //找centerArticle
+              let articleObj = {};
+
+              //將所有的分類放到categoryArray中，若已在該分類中則不列入centerArticle
+              if (categoryArray.indexOf(sortedArticle[i].category) == -1) {
+                categoryArray.push(sortedArticle[i].category);
+                articleObj.centerArticle = sortedArticle[i];
+                articleObj.sameCategory = [];
+                articleObj.sameAuthor = [];
+                centerArray.push(articleObj);
+
+                //新增文章大頭貼
+                let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
+                if (authorAvatarLink.length == 1) {
+                  sortedArticle[i].avatarLink = authorAvatarLink
+                }
+                else if(authorAvatarLink.length > 1) {
+                  sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+                }
+
+                //新增留言大頭貼
+                if(sortedArticle[i].comment != null) {
+                  for (let j = 0; j < sortedArticle[i].comment.length; j++){
+                    let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
+                    if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
+                      sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
+                    }
+                    else if(commentAvatarLink.length > 1) {
+                      sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                    }
+                  }
+                }
+              }
+
+              //找sameCategory的文章
+              for (let j = 0; j < centerArray.length; j++) {
+                if (sortedArticle[i].category === centerArray[j].centerArticle.category && sortedArticle[i].id !== centerArray[j].centerArticle.id && centerArray[j].sameCategory.length < 5 ) {
+                  centerArray[j].sameCategory.push(sortedArticle[i])
+
+                  //新增文章大頭貼
+                  let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
+                  if (authorAvatarLink.length == 1) {
+                    sortedArticle[i].avatarLink = authorAvatarLink
+                  }
+                  else if(authorAvatarLink.length > 1) {
+                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+                  }
+
+                  //新增留言大頭貼
+                  if(sortedArticle[i].comment != null) {
+                    for (let j = 0; j < sortedArticle[i].comment.length; j++){
+                      //console.log(sortedArticle[i].comment[j].id)
+                      let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
+                      if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
+                        sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
+                      }
+                      else if(commentAvatarLink.length > 1) {
+                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                      }
+                    }
+                  }
+                }
+
+                //找sameAuthor的文章
+                if (sortedArticle[i].author === centerArray[j].centerArticle.author && sortedArticle[i].id !== centerArray[j].centerArticle.id && centerArray[j].sameAuthor.length < 5) {
+                  centerArray[j].sameAuthor.push(sortedArticle[i]);
+                  //新增文章大頭貼
+                  let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
+                  if (authorAvatarLink.length == 1) {
+                    sortedArticle[i].avatarLink = authorAvatarLink
+                  }
+                  else if(authorAvatarLink.length > 1) {
+                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+                  }
+
+                  //新增留言大頭貼
+                  if(sortedArticle[i].comment != null) {
+                    for (let j = 0; j < sortedArticle[i].comment.length; j++){
+                      let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
+                      if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
+                        sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
+                      }
+                      else if(commentAvatarLink.length > 1) {
+                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
+
+            function authorToAvatarLink(id) {
+              for (let i = 0; i < all_profile.length; i++) {
+                if (id == all_profile[i].userID) {
+                  return all_profile[i].avatarLink;
+                }
+              }
+            }
+
+
+            function getFriendsArticle(userID, profile , article) {
+              let friendsArticle =[];
+              for(let i = 0; i < profile.length; i++) {
+                //profile.friends型態是陣列，所以用==
+                if(userID == profile[i].userID) {
+                  //撈出所有好友的ID console.log(profile[i].friends)
+                  //在撈出好友的文章
+                  for(let j = 0; j < article.length; j++) {
+                    for (let friendsID of profile[i].friends) {
+                      if(article[j].authorID === friendsID) {
+                        friendsArticle.push(article[j])
+                      }
+                    }
+                  }
+                }
+              }
+              return friendsArticle;
+            }
+            res.json(centerArray);
+          })
+      })
+  }
+
+
+
+  //撈五篇同分類的文章
+  searchMoreArticlesByTheSameCategory(req, res, next) {
+    articleSchemaModel.find({delete: false, privacy: "public"})
+      .then(doc=> {
+        profileSchemaModel.find({})
+          .then(all_profile => {
+
+            //先過濾是否為friendsArticles
+            let friendsArticles = getFriendsArticle(req.body.userID, all_profile, doc);
+
+            //文章排序
+            let sortedArticle = friendsArticles.sort(function (b, a) {
+              return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
+            });
+
+            //根據分類給文章
+            let existArticleIDArray = [];
+            let getFiveArticles = [];
+            for (let i = 0; i < sortedArticle.length; i++) {
+              if (sortedArticle[i].category === req.body.category) {
+                existArticleIDArray = searchExistedArticleID(req.body.category);
+              }
+            }
+
+            //已存在之全部的文章ID
+            let allArticleID = req.body.articleIDInSameCategory;
+            for (let j = 0; j < existArticleIDArray.length; j++) {
+              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5)
+                getFiveArticles.push(existArticleIDArray[j]);
+
+              for (let i = 0; i < getFiveArticles.length; i++) {
+                if (getFiveArticles[i] != null) {
+                  //文章大頭貼
+                  let authorAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].authorID);
+                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
+                  else if (authorAvatarLink.length > 1) {
+                    getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
+                  }
+
+                  //留言大頭貼
+                  if(getFiveArticles[i].comment != null) {
+                    for (let j = 0; j < getFiveArticles[i].comment.length; j++){
+                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
+                      if (commentAvatarLink.length == 1) {
+                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
+                      }
+                      else if(commentAvatarLink.length > 1) {
+                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            res.json(getFiveArticles);
+
+
+            function searchExistedArticleID(category) {
+              let existedArticleIDArray = [];
+              for (let j = 0; j < sortedArticle.length; j++) {
+                if (category === sortedArticle[j].category && existedArticleIDArray.indexOf(sortedArticle[j].id) == -1) {
+                  existedArticleIDArray.push(sortedArticle[j])
+                }
+              }
+              return existedArticleIDArray;
+            }
+
+
+            function avatarIDToAvatarLink(id) {
+              for (let i = 0; i < all_profile.length; i++) {
+                if (id == all_profile[i].userID) {
+                  return all_profile[i].avatarLink;
+                }
+              }
+            }
+
+            function getFriendsArticle(userID, profile , article) {
+              let friendsArticle =[];
+              for(let i = 0; i < profile.length; i++) {
+                //profile.friends型態是陣列，所以用==
+                if(userID == profile[i].userID) {
+                  //撈出所有好友的ID console.log(profile[i].friends)
+                  //再撈出好友的文章
+                  for(let j = 0; j < article.length; j++) {
+                    for (let friendsID of profile[i].friends) {
+                      if(article[j].authorID === friendsID) {
+                        friendsArticle.push(article[j])
+                      }
+                    }
+                  }
+                }
+              }
+              return friendsArticle;
+            }
+          })
+      })
+  }
+
+
+  //撈五篇同作者的文章
+  searchMoreArticlesByTheSameAuthor(req, res, next) {
 
     articleSchemaModel.find({delete: false, privacy: "public"})
       .then(doc=> {
         profileSchemaModel.find({})
           .then(all_profile => {
-        //文章排序
-        let sortedArticle = doc.sort(function (b, a) {
-          return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
-        });
 
-        let final = [];
-        let terminateNumber = (sortedArticle.length < (req.body.count * 10 - 1)) ? sortedArticle.length - 1 : (req.body.count * 10 - 1);
-        for (let i = ((req.body.count * 10 - 1) - 9); i <= terminateNumber; i++) {
-          //文章大頭貼
-          let authorAvatarLink = commenterIDToAvatarLink(sortedArticle[i].authorID)
-          //sortedArticle[i].avatarLink = authorAvatarLink
-          if (authorAvatarLink.length == 1) {
-            sortedArticle[i].avatarLink = authorAvatarLink
-          }
-          else if(authorAvatarLink.length > 1) {
-            sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
-          }
-
-          //留言大頭貼
-          if(sortedArticle[i].comment != null){
-            for (let j = 0; j < sortedArticle[i].comment.length; j++){
-              //console.log(sortedArticle[i].comment[j].id)
-              let commentAvatarLink = commenterIDToAvatarLink(sortedArticle[i].comment[j].commenterID)
-              if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
-                sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
-              }
-              else if(commentAvatarLink.length > 1) {
-                sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
-              }
-            }
-          }
-          //console.log(sortedArticle[i].category);
-          final[i - ((req.body.count * 10 - 1) - 9)] = searchSameCategory(sortedArticle[i].category, sortedArticle[i]);
-          final[i - ((req.body.count * 10 - 1) - 9)].unshift(sortedArticle[i]);
-        }
-
-
-        function searchSameCategory(category, itself) {
-          let res = [];
-          for (let i = 0; i < sortedArticle.length; i++) {
-            if (category === sortedArticle[i].category && sortedArticle[i] !== itself) {
-              res.push(sortedArticle[i]);
-            }
-          }
-          return res;
-        }
-
-        function commenterIDToAvatarLink(id) {
-          for (let i = 0; i < all_profile.length; i++) {
-            if (id == all_profile[i].userID) {
-              //console.log(all_profile[i].avatarLink)
-              return all_profile[i].avatarLink;
-            }
-          }
-        }
-          res.json(final)
-       })
-      })
-  }
-
-        // //console.log(sortedArticle.length)
-        // //載入最新的10篇文章
-        // for(let i=0;i<10;i++) {
-        //   //console.log(doc[i])
-        //   articleArray.push(doc[i])
-        //
-        //   //console.log(articleArray[0])
-        //
-        //   //需修改
-        //   //再各自陣列中找出分類
-        //   if (sortedArticle[i].category == doc[i].category && articleArray.indexOf(doc[i]._id) ==-1) {
-        //     //console.log("123")
-        //     articleArray.push(doc[i])
-        //     //console.log(articleArray[0])
-        //     //console.log(articleArray.indexOf(doc[0]._id))
-        //   }
-        //
-        //   //console.log(articleArray)
-        //   empty()
-        //  //console.log(sortedArticle[i].category)
-        // }
-        //
-        //
-        //
-        // // for(let i=0;i<doc.length;i++) {
-        // //
-        // //
-        // //
-        // //   //選10篇文章各category的分類
-        // //   if (categoryArray.indexOf(doc[i].category) == -1) categoryArray.push(doc[i].category)
-        // // }
-        // //
-        // // for (let category in categoryArray){
-        // //   for (let i = 0; i < doc.length; i++) {
-        // //     //console.log(categoryArray.length)
-        // //      //相同的分類放至陣列中
-        // //     if (categoryArray[category] == doc[i].category && articleOfArray.indexOf(doc[i]) == -1) {
-        // //       articleOfArray.push(doc[i])
-        // //       console.log(categoryArray.length) //3 有3種分類
-        // //     }
-        // //
-        // //    }
-        // //    allArticleArray.push(articleOfArray)
-        // //    empty()
-        // //  }
-        // //
-        // //
-        // //  res.json(allArticleArray)
-        // //
-        //  //清空陣列
-        //  function empty(){
-        //   articleArray=[]
-        //
-        //  }
-
-
-  //撈五篇文章
-  searchMoreArticlesByCategory(req, res, next) {
-  articleSchemaModel.find({delete: false, privacy: "public"})
-    .then(doc=> {
-      profileSchemaModel.find({})
-        .then(all_profile => {
-          //根據分類給文章
-          let allArticleArray = [];
-          let getFiveArticles = [];
-          let getSortedArticles = [];
-          for (let i = 0; i < doc.length; i++) {
-            if (doc[i].category === req.body.category) {
-              allArticleArray = searchCategory(req.body.category)
-            }
-          }
-
-          //已存在之全部的文章ID
-          let allArticleID = req.body.articleID
-          for (let j = 0; j < allArticleArray.length; j++) {
-            if (allArticleID.indexOf(allArticleArray[j].id) == -1 && getFiveArticles.length < 5)
-              getFiveArticles.push(allArticleArray[j])
-
-
+            // 先過濾是否為friendsArticles
+            // let friendsArticles = getFriendsArticle(req.body.authorID, all_profile, doc);
+            // console.log(friendsArticles)
             //文章排序
-            getSortedArticles = getFiveArticles.sort(function (b, a) {
+            let sortedArticle = doc.sort(function (b, a) {
               return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
             });
 
-            for (let i = 0; i < getFiveArticles.length; i++) {
-              if (getFiveArticles[i] != null) {
-                //文章大頭貼
-                let authorAvatarLink = commenterIDToAvatarLink(getFiveArticles[i].authorID)
-                if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
-                else if (authorAvatarLink.length > 1) {
-                  getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
-                }
+            //根據作者給文章
+            let existArticleIDArray = [];
+            let getFiveArticles = [];
+            for (let i = 0; i < sortedArticle.length; i++) {
 
-            //留言大頭貼
-              if(getFiveArticles[i].comment != null){
-                for (let j = 0; j < getFiveArticles[i].comment.length; j++){
-                  //console.log(sortedArticle[i].comment[j].id)
-                  let commentAvatarLink = commenterIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
-                  if (commentAvatarLink.length == 1) {
-                    getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
+              if (sortedArticle[i].authorID === req.body.authorID) {
+                existArticleIDArray = searchExistedArticleID(req.body.authorID);
+              }
+            }
+
+
+            //已存在之全部的文章ID
+            let allArticleID = req.body.articleIDInSameAuthor;
+            for (let j = 0; j < existArticleIDArray.length; j++) {
+              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5)
+                getFiveArticles.push(existArticleIDArray[j]);
+
+              for (let i = 0; i < getFiveArticles.length; i++) {
+                if (getFiveArticles[i] != null) {
+                  //文章大頭貼
+                  let authorAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].authorID);
+                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
+                  else if (authorAvatarLink.length > 1) {
+                    getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
                   }
-                  else if(commentAvatarLink.length > 1) {
-                    getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+
+                  //留言大頭貼
+                  if(getFiveArticles[i].comment != null) {
+                    for (let j = 0; j < getFiveArticles[i].comment.length; j++){
+                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
+                      if (commentAvatarLink.length == 1) {
+                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
+                      }
+                      else if(commentAvatarLink.length > 1) {
+                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                      }
+                    }
                   }
                 }
               }
+            }
+            res.json(getFiveArticles);
+
+
+            function searchExistedArticleID(author) {
+              let existedArticleIDArray = [];
+              for (let j = 0; j < sortedArticle.length; j++) {
+                if (author === sortedArticle[j].authorID && existedArticleIDArray.indexOf(sortedArticle[j].id) == -1) {
+                  existedArticleIDArray.push(sortedArticle[j])
+                }
+              }
+              return existedArticleIDArray;
+            }
+
+
+            function avatarIDToAvatarLink(id) {
+              for (let i = 0; i < all_profile.length; i++) {
+                if (id == all_profile[i].userID) {
+                  return all_profile[i].avatarLink;
+                }
               }
             }
-          }
 
-          res.json(getSortedArticles);
-
-          function searchCategory(category) {
-            let articleArray = []
-            for (let j = 0; j < doc.length; j++) {
-              if (category === doc[j].category && articleArray.indexOf(doc[j].id) == -1) {
-                articleArray.push(doc[j])
-              }
-            }
-            return articleArray
-          }
-
-
-          function commenterIDToAvatarLink(id) {
-            for (let i = 0; i < all_profile.length; i++) {
-              if (id == all_profile[i].userID) {
-                return all_profile[i].avatarLink;
-
-              }
-            }
-          }
+            // function getFriendsArticle(userID, profile , article) {
+            //   let friendsArticle =[];
+            //   console.log("123")
+            //
+            //   for(let i = 0; i < profile.length; i++) {
+            //     //profile.friends型態是陣列，所以用==
+            //     if(userID == profile[i].userID) {
+            //       //撈出所有好友的ID console.log(profile[i].friends)
+            //       //再撈出好友的文章
+            //       for(let j = 0; j < article.length; j++) {
+            //         for (let friendsID of profile[i].friends) {
+            //           if(article[j].authorID === friendsID) {
+            //             friendsArticle.push(article[j]);
+            //
+            //           }
+            //         }
+            //       }
+            //     }
+            //   }
+            //   return friendsArticle;
+            // }
+          })
       })
-    })
   }
 
 
-  // updateArticle(req, res, next) {
-  //   let updateObj = {};
-  //     let photoObj = {};
-  //     let videoObj = {};
-  //     let seconds = Math.round(Date.now() / 1000);
-  //     let mediaArray=[]
-  //   const form = new formidable.IncomingForm();
-  //     form.parse(req, function (err, fields, files) {
-  //
-  //   //原mediaLink物件
-  //   let contentFromFrontEnd = fields.mediaLink;
-  //   //修改圖片或影片
-  //   let imageFromFrontEnd = fields.image;
-  //   let videoFromFrontEnd = fields.video;
-  //
-  //     articleSchemaModel.findOne({_id: fields.articleID})
-  //     .then(doc => {
-  //       //只修改文字(傳送文字修改後之物件)
-  //      if(contentFromFrontEnd !== null && imageFromFrontEnd === null && videoFromFrontEnd === null) {
-  //        doc.listOfContent.push(contentFromFrontEnd);
-  //
-  //        //修改圖片(傳送原物件及修改之圖片)
-  //      }
-  //
-  //
-  //      //
-  //      // else if (imageFromFrontEnd !== null && contentFromFrontEnd !== null && videoFromFrontEnd === null ) {
-  //      //   //解析圖片
-  //      //   cloudinary.uploader.upload(files.imageFromFrontEnd.path, function (resultPhotoUrl) {
-  //      //     photoObj.type = fields.photoType;
-  //      //     photoObj.link = resultPhotoUrl.secure_url;
-  //      //     mediaArray.push(photoObj)
-  //      //
-  //      //     doc.listOfContent.push(contentFromFrontEnd);
-  //      //
-  //      //   }, {folder: 'Social_Media/mediaLink'});
-  //      //
-  //      // }
-  //
-  //
-  //
-  //
-  //
-  //
-  //     })
-  //
-  //   })
-  // }
-
+  //待修
   updateArticle(req, res, next) {
     let updateObj = {};
     let photoObj = {};

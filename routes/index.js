@@ -28,11 +28,11 @@ router.put('/update_article', article.updateArticle); //update article
 
 router.post('/search_articleByArticleID', article.searchArticleByArticleID); //get the article by articleID
 
-//router.get('/search_article', article.searchArticle); // get all of article
+router.post('/search_articleByCategoryAndTheSameAuthor', article.searchArticleByCategoryAndTheSameAuthor); //搜尋相同分類相同作者的文章
 
-router.post('/search_articleByCategory', article.searchArticleByCategory); // show articles by the same category
+router.post('/search_moreArticlesByTheSameCategory', article.searchMoreArticlesByTheSameCategory); //搜尋五篇相同分類的文章
 
-router.post('/searchMoreArticlesByCategory', article.searchMoreArticlesByCategory); //撈五篇文章
+router.post('/search_moreArticlesByTheSameAuthor', article.searchMoreArticlesByTheSameAuthor); //搜尋五篇相同作者的文章
 
 router.put('/delete_article', article.deleteArticle); //delete
 
