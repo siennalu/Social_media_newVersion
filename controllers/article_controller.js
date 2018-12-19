@@ -1,16 +1,15 @@
 const articleSchemaModel = require('../models/article_model.js');
 const profileSchemaModel = require('../models/profile_model.js');
 const userSchemaModel = require('../models/user_model.js');
-//const profileArray = require('./users_controller.js').profileArray;
 const uniqid = require('uniqid');
 const formidable = require('formidable');
 const cloudinary = require('cloudinary');
 
-cloudinary.config({
+cloudinary.config ({
   cloud_name: 'dzzdz1kvr',
   api_key: '154653594993876',
   api_secret: 'pzNTrLGj6HJkE6QGAUeJ2cyBxAE'
-})
+});
 
 
 module.exports = class Article {
@@ -29,6 +28,7 @@ module.exports = class Article {
         delete: false,
         title: fields.title,
       });
+
       article.authorID = fields.authorID;
       article.author = fields.author;
       article.title = fields.title;
@@ -37,41 +37,40 @@ module.exports = class Article {
       article.hashTags = fields.hashTags;
       contentForObject.time = seconds;
       contentForObject.content = fields.content;
+      let mediaArray =[];
 
-      let mediaArray =[]
       //上傳圖片及照片
       if (files.image != null && files.video != null) {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
           photoObj.type = fields.photoType; //png
           photoObj.link = resultPhotoUrl.secure_url;
-          mediaArray.push(photoObj)
+          mediaArray.push(photoObj);
 
           cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
             videoObj.type = fields.videoType;
             videoObj.link = resultVideoUrl.secure_url;
-            mediaArray.push(videoObj)
+            mediaArray.push(videoObj);
             contentForObject.mediaLink = mediaArray;
             contentForArray.push(contentForObject);
             article.listOfContent = contentForArray;
 
-            if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+            if (article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
               article.save()
                 .then(posts => {
                   let result = {
                     status: "圖片和影片發文成功",
                     article: posts
-                  }
-                  res.json(result)
+                  };
+                  res.json(result);
                 })
-                .catch(error => res.json(error))
+                .catch(error => res.json(error));
             } else {
               let result = {
                 status: "發文失敗",
                 err: "請輸入作者ID"
-              }
+              };
                res.json(result);
             }
-
           }, {resource_type: "video"});
         }, {folder: 'Social_Media/mediaLink'});
 
@@ -80,26 +79,26 @@ module.exports = class Article {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
           photoObj.type = fields.photoType; //png
           photoObj.link = resultPhotoUrl.secure_url;
-          mediaArray.push(photoObj)
+          mediaArray.push(photoObj);
           contentForObject.mediaLink = mediaArray;
           contentForArray.push(contentForObject);
           article.listOfContent = contentForArray;
 
-          if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+          if (article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
             article.save()
               .then(posts => {
                 let result = {
                   status: "圖片發文成功",
                   article: posts
-                }
-                res.json(result)
+                };
+                res.json(result);
               })
-              .catch(error => res.json(error))
+              .catch(error => res.json(error));
           } else {
             let result = {
               status: "發文失敗",
               err: "請輸入作者ID"
-            }
+            };
             res.json(result);
           }
         }, {folder: 'Social_Media/mediaLink'});
@@ -109,26 +108,26 @@ module.exports = class Article {
         cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
           videoObj.type = fields.videoType; //mp4
           videoObj.link = resultVideoUrl.secure_url;
-          mediaArray.push(videoObj)
+          mediaArray.push(videoObj);
           contentForObject.mediaLink = mediaArray;
           contentForArray.push(contentForObject);
           article.listOfContent = contentForArray;
 
-          if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+          if (article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
             article.save()
               .then(posts => {
                 let result = {
                   status: "影片發文成功",
                   article: posts
-                }
-                res.json(result)
+                };
+                res.json(result);
               })
               .catch(error => res.json(error))
           } else {
             let result = {
               status: "發文失敗",
               err: "請輸入作者ID"
-            }
+            };
             res.json(result);
           }
         }, {resource_type: "video"});
@@ -137,21 +136,21 @@ module.exports = class Article {
         contentForArray.push(contentForObject);
         article.listOfContent = contentForArray;
 
-        if(article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
+        if (article.authorID && (article.authorID !== null) && (article.authorID !== undefined)) {
           article.save()
             .then(posts => {
               let result = {
                 status: "發文成功",
                 article: posts
-              }
-              res.json(result)
+              };
+              res.json(result);
             })
-            .catch(error => res.json(error))
+            .catch(error => res.json(error));
         } else {
           let result = {
             status: "發文失敗",
             err: "請輸入作者ID"
-          }
+          };
           res.json(result);
         }
       }
@@ -159,12 +158,11 @@ module.exports = class Article {
   }
 
 
-
   async searchArticleByArticleID(req, res, next) {
     let articleArray = [];
     let articleOne = await articleSchemaModel.findOne({delete: false, _id: req.body.articleID, privacy: "public"}).exec()
     articleArray.push(articleOne);
-    res.json(articleArray)
+    res.json(articleArray);
   }
 
 
@@ -174,7 +172,6 @@ module.exports = class Article {
 
     articleSchemaModel.find({delete: false, privacy: "public"})
       .then(doc=> {
-
         profileSchemaModel.find({})
           .then(all_profile => {
 
@@ -201,21 +198,21 @@ module.exports = class Article {
                 //新增文章大頭貼
                 let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
                 if (authorAvatarLink.length == 1) {
-                  sortedArticle[i].avatarLink = authorAvatarLink
+                  sortedArticle[i].avatarLink = authorAvatarLink;
                 }
                 else if(authorAvatarLink.length > 1) {
-                  sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+                  sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1]);
                 }
 
                 //新增留言大頭貼
                 if (sortedArticle[i].comment != null) {
-                  for (let j = 0; j < sortedArticle[i].comment.length; j++){
+                  for (let j = 0; j < sortedArticle[i].comment.length; j++) {
                     let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
                     if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
-                      sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
+                      sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink;
                     }
                     else if (commentAvatarLink.length > 1) {
-                      sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                      sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
                     }
                   }
                 }
@@ -256,21 +253,21 @@ module.exports = class Article {
                   //新增文章大頭貼
                   let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
                   if (authorAvatarLink.length == 1) {
-                    sortedArticle[i].avatarLink = authorAvatarLink
+                    sortedArticle[i].avatarLink = authorAvatarLink;
                   }
                   else if (authorAvatarLink.length > 1) {
-                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1]);
                   }
 
                   //新增留言大頭貼
                   if (sortedArticle[i].comment != null) {
-                    for (let j = 0; j < sortedArticle[i].comment.length; j++){
-                      let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
+                    for (let j = 0; j < sortedArticle[i].comment.length; j++) {
+                      let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID);
                       if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
-                        sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
+                        sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink;
                       }
                       else if (commentAvatarLink.length > 1) {
-                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
                       }
                     }
                   }
@@ -308,6 +305,12 @@ module.exports = class Article {
             }
             res.json(centerArray);
           })
+          .catch(err => {
+            console.log(err);
+          })
+      })
+      .catch(err => {
+        console.log(err);
       })
   }
 
@@ -340,14 +343,14 @@ module.exports = class Article {
             //已存在之全部的文章ID
             let allArticleID = req.body.articleIDInSameCategory;
             for (let j = 0; j < existArticleIDArray.length; j++) {
-              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5)
+              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5);
                 getFiveArticles.push(existArticleIDArray[j]);
 
               for (let i = 0; i < getFiveArticles.length; i++) {
                 if (getFiveArticles[i] != null) {
                   //文章大頭貼
                   let authorAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].authorID);
-                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
+                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink;
                   else if (authorAvatarLink.length > 1) {
                     getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
                   }
@@ -355,12 +358,12 @@ module.exports = class Article {
                   //留言大頭貼
                   if(getFiveArticles[i].comment != null) {
                     for (let j = 0; j < getFiveArticles[i].comment.length; j++){
-                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
+                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID);
                       if (commentAvatarLink.length == 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
+                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink;
                       }
                       else if (commentAvatarLink.length > 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
                       }
                     }
                   }
@@ -408,6 +411,12 @@ module.exports = class Article {
               return friendsArticle;
             }
           })
+          .catch(err => {
+            console.log(err);
+          })
+      })
+      .catch(err => {
+        console.log(err);
       })
   }
 
@@ -438,31 +447,30 @@ module.exports = class Article {
               }
             }
 
-
             //已存在之全部的文章ID
             let allArticleID = req.body.articleIDInSameAuthor;
             for (let j = 0; j < existArticleIDArray.length; j++) {
-              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5)
+              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5);
                 getFiveArticles.push(existArticleIDArray[j]);
 
               for (let i = 0; i < getFiveArticles.length; i++) {
                 if (getFiveArticles[i] != null) {
                   //文章大頭貼
                   let authorAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].authorID);
-                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
+                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink;
                   else if (authorAvatarLink.length > 1) {
-                    getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
+                    getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1]);
                   }
 
                   //留言大頭貼
                   if(getFiveArticles[i].comment != null) {
-                    for (let j = 0; j < getFiveArticles[i].comment.length; j++){
-                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
+                    for (let j = 0; j < getFiveArticles[i].comment.length; j++) {
+                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID);
                       if (commentAvatarLink.length == 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
+                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink;
                       }
-                      else if(commentAvatarLink.length > 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                      else if (commentAvatarLink.length > 1) {
+                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
                       }
                     }
                   }
@@ -476,7 +484,7 @@ module.exports = class Article {
               let existedArticleIDArray = [];
               for (let j = 0; j < sortedArticle.length; j++) {
                 if (author === sortedArticle[j].authorID && existedArticleIDArray.indexOf(sortedArticle[j].id) == -1) {
-                  existedArticleIDArray.push(sortedArticle[j])
+                  existedArticleIDArray.push(sortedArticle[j]);
                 }
               }
               return existedArticleIDArray;
@@ -490,29 +498,13 @@ module.exports = class Article {
                 }
               }
             }
-
-            // function getFriendsArticle(userID, profile , article) {
-            //   let friendsArticle =[];
-            //   console.log("123")
-            //
-            //   for(let i = 0; i < profile.length; i++) {
-            //     //profile.friends型態是陣列，所以用==
-            //     if(userID == profile[i].userID) {
-            //       //撈出所有好友的ID console.log(profile[i].friends)
-            //       //再撈出好友的文章
-            //       for(let j = 0; j < article.length; j++) {
-            //         for (let friendsID of profile[i].friends) {
-            //           if(article[j].authorID === friendsID) {
-            //             friendsArticle.push(article[j]);
-            //
-            //           }
-            //         }
-            //       }
-            //     }
-            //   }
-            //   return friendsArticle;
-            // }
           })
+          .catch(err => {
+            console.log(err);
+          })
+      })
+      .catch(err => {
+        console.log(err);
       })
   }
 
@@ -526,7 +518,7 @@ module.exports = class Article {
       articleSchemaModel.findOne({_id: fields.articleID})
         .then(doc => {
           //修改文字
-          if(fields.content !== undefined  && files.image === undefined  && files.video === undefined ) {
+          if(fields.content !== undefined  && files.image === undefined  && files.video === undefined) {
             let updateContentObj = {};
             updateContentObj.time = seconds;
             updateContentObj.content = fields.content;
@@ -543,13 +535,13 @@ module.exports = class Article {
             if (fields.category !== null) doc.category = fields.category;
             if (fields.title!== null) doc.title = fields.title;
             if (fields.hashTags !== null) doc.hashTags = fields.hashTags;
-            //console.log(doc)
+
             doc.save()
               .then(value => {
                 let result = {
                   status: "Update the content has been successful.",
                   content: value
-                }
+                };
                 res.json(result);
               })
               .catch(error => res.json(error));
@@ -564,7 +556,6 @@ module.exports = class Article {
               //判斷原始文章是否有文字，若有則加入
               if(doc.listOfContent[doc.listOfContent.length-1].content !== undefined) {
                 updatePhotoObj.content = doc.listOfContent[doc.listOfContent.length - 1].content
-                //doc.listOfContent.push(articleObj);
               }
 
               //修改圖片
@@ -585,7 +576,7 @@ module.exports = class Article {
                     let result = {
                       status: "Update the photo has been successful.",
                       content: value
-                    }
+                    };
                     res.json(result);
                   })
                   .catch(error => res.json(error));
@@ -599,7 +590,7 @@ module.exports = class Article {
                 if(mediaLink[i].type == 'mp4' || mediaLink[i].type == 'mp3') {
                   mediaObj.type = mediaLink[i].type;
                   mediaObj.link = mediaLink[i].link;
-                  mediaArray.push(mediaObj)
+                  mediaArray.push(mediaObj);
                 }
               }
               return mediaArray;
@@ -635,7 +626,7 @@ module.exports = class Article {
                     let result = {
                       status: "Update the video has been successful.",
                       content: value
-                    }
+                    };
                     res.json(result);
                   })
                   .catch(error => res.json(error));
@@ -671,7 +662,7 @@ module.exports = class Article {
           let result = {
             status: "刪除成功",
             content: value
-          }
+          };
           res.json(result);
         })
 
@@ -683,6 +674,9 @@ module.exports = class Article {
             res.json(error)
           })
       })
+      .catch(err => {
+        console.log(err);
+      })
   }
 
   likesArticle(req, res, next) {
@@ -692,10 +686,10 @@ module.exports = class Article {
       .then(doc => {
         userSchemaModel.findOne({_id: req.body.likesPersonID})
           .then(user => {
-            for(let i = 0; i < doc.likes.length; i++) {
+            for (let i = 0; i < doc.likes.length; i++) {
               likesArray.push(doc.likes[i].userID);
             }
-            if(likesArray.indexOf(req.body.likesPersonID) == -1) {
+            if (likesArray.indexOf(req.body.likesPersonID) == -1) {
               objForLikes.userName = user.userName;
               objForLikes.userID = req.body.likesPersonID;
               objForLikes.avatarLink = user.avatarLink;
@@ -716,15 +710,15 @@ module.exports = class Article {
                   status: "按讚失敗",
                   err: "伺服器錯誤，請稍後再試"
                 };
-                res.json(error)
+                res.json(error);
               })
           })
           .catch(error => {
-            console.log("未找到userID")
+            console.log("未找到userID");
           });
       })
       .catch(error => {
-        console.log(error)
+        console.log(error);
       });
   }
 
@@ -733,14 +727,13 @@ module.exports = class Article {
     articleSchemaModel.findOne({ _id: req.body.articleID})
       .then(doc => {
         //所有的likes先放置Array中
-        for(let i = 0; i < doc.likes.length; i++) {
+        for (let i = 0; i < doc.likes.length; i++) {
           likesArray.push(doc.likes[i].userID);
-
-          if(doc.likes[i].userID === req.body.dislikesPersonID && likesArray.indexOf(req.body.dislikesPersonID) != -1) {
-            let temp = likesArray.indexOf(req.body.dislikesPersonID);
-            doc.likes.splice(temp, 1);
-            doc.numberOfLikes = doc.likes.length;
-          }
+            if (doc.likes[i].userID === req.body.dislikesPersonID && likesArray.indexOf(req.body.dislikesPersonID) != -1) {
+              let temp = likesArray.indexOf(req.body.dislikesPersonID);
+              doc.likes.splice(temp, 1);
+              doc.numberOfLikes = doc.likes.length;
+            }
         }
 
         doc.save()
@@ -748,14 +741,14 @@ module.exports = class Article {
             let result = {
               status: "收回讚成功",
               content: value
-            }
+            };
             res.json(result);
           })
           .catch(error => {
             let result = {
               status: "收回讚失敗",
               err: "伺服器錯誤，請稍後再試"
-            }
+            };
             res.json(error);
           })
       })
@@ -780,43 +773,43 @@ module.exports = class Article {
       commentObjForListOfComment.content = fields.content;
       commentArrayForListOfComment.push(commentObjForListOfComment);
 
-      forComment.commenterID = fields.commenterID
+      forComment.commenterID = fields.commenterID;
       forComment.likes = [];
       forComment.commenter_avatarLink = [];
       forComment.numberOfLikes = forComment.likes.length;
       forComment.delete = false;
       forComment.commenterName = "";
-      let mediaArray =[]
+      let mediaArray =[];
+
       //留言圖片和影片
       if (files.image != null && files.video != null) {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
           photoObj.type = fields.photoType;
           photoObj.link = resultPhotoUrl.secure_url;
-          mediaArray.push(photoObj)
+          mediaArray.push(photoObj);
 
           cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
             videoObj.type = fields.videoType;
             videoObj.link = resultVideoUrl.secure_url;
 
-
-            mediaArray.push(videoObj)
-            commentObjForListOfComment.mediaLink = mediaArray;
-            forComment.listOfComment = commentArrayForListOfComment;
+          mediaArray.push(videoObj);
+          commentObjForListOfComment.mediaLink = mediaArray;
+          forComment.listOfComment = commentArrayForListOfComment;
 
 
             articleSchemaModel.findOne({_id: fields.articleID})
               .then(doc => {
                 userSchemaModel.findOne({_id:fields.commenterID})
-                  .then(user=>{
-                    forComment.commenterName = user.userName
+                  .then(user=> {
+                    forComment.commenterName = user.userName;
 
-                doc.comment.push(forComment)
+                doc.comment.push(forComment);
                 doc.save()
                   .then(value => {
                     let result = {
                       status: "圖片和影片留言成功",
                       article: value
-                    }
+                    };
                     res.json(result)
                   })
                   .catch(error => res.json(error));
@@ -824,7 +817,7 @@ module.exports = class Article {
                   .catch(error => res.json(error));
               }, {resource_type: "video"});
           }, {folder: 'Social_Media/mediaLink'});
-        })
+       })
 
 
         //留言圖片
@@ -832,24 +825,24 @@ module.exports = class Article {
         cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
           photoObj.type = fields.photoType;
           photoObj.link = resultPhotoUrl.secure_url;
-          mediaArray.push(photoObj)
+          mediaArray.push(photoObj);
           commentObjForListOfComment.mediaLink = mediaArray;
           forComment.listOfComment = commentArrayForListOfComment;
 
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
               userSchemaModel.findOne({_id:fields.commenterID})
-                .then(user=>{
-                  forComment.commenterName = user.userName
+                .then(user=> {
+                  forComment.commenterName = user.userName;
 
-              doc.comment.push(forComment)
+              doc.comment.push(forComment);
               doc.save()
                 .then(value => {
                   let result = {
                     status: "圖片留言成功",
                     article: value
-                  }
-                  res.json(result)
+                  };
+                  res.json(result);
                 })
                 .catch(error => res.json(error));
               })
@@ -863,7 +856,7 @@ module.exports = class Article {
         cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
           videoObj.type = fields.videoType;
           videoObj.link = resultVideoUrl.secure_url;
-          mediaArray.push(videoObj)
+          mediaArray.push(videoObj);
           commentObjForListOfComment.mediaLink = mediaArray;
           forComment.listOfComment = commentArrayForListOfComment;
 
@@ -871,15 +864,15 @@ module.exports = class Article {
             .then(doc => {
               userSchemaModel.findOne({_id:fields.commenterID})
                 .then(user=>{
-                  forComment.commenterName = user.userName
+                  forComment.commenterName = user.userName;
 
-              doc.comment.push(forComment)
+              doc.comment.push(forComment);
               doc.save()
                 .then(value => {
                   let result = {
                     status: "影片留言成功",
                     article: value
-                  }
+                  };
                   res.json(result)
                 })
                 .catch(error => res.json(error));
@@ -896,8 +889,8 @@ module.exports = class Article {
         articleSchemaModel.findOne({_id: fields.articleID})
           .then(doc => {
             userSchemaModel.findOne({_id:fields.commenterID})
-              .then(user=>{
-                forComment.commenterName = user.userName
+              .then(user=> {
+                forComment.commenterName = user.userName;
                 doc.comment.push(forComment);
 
             doc.save()
@@ -905,15 +898,15 @@ module.exports = class Article {
                 let result = {
                   status: "留言成功",
                   content: value
-                }
+                };
                 res.json(result);
               })
               .catch(error => {
                 let result = {
                   status: "留言失敗",
                   err: "伺服器錯誤，請稍後再試"
-                }
-                res.json(error)
+                };
+                res.json(error);
               })
               .catch(error => res.json(error));
           })
@@ -934,9 +927,7 @@ module.exports = class Article {
               //先將目前的userID放入likesArray中
               for (let j = 0 ;j < doc.comment[i].likes.length; j++) {
                 if (doc.comment[i].id === req.body.commentID) {
-                  console.log(doc.comment[i].likes[j].userID);
                   likesArray.push(doc.comment[i].likes[j].userID);
-                  console.log(likesArray)
                 }
               }
 
@@ -954,15 +945,15 @@ module.exports = class Article {
                 let result = {
                   status: "按讚成功",
                   content: value
-                }
+                };
                 res.json(result);
               })
               .catch(error => {
                 let result = {
                   status: "按讚失敗",
                   err: "伺服器錯誤，請稍後再試"
-                }
-                res.json(error)
+                };
+                res.json(error);
               })
           })
           .catch(err => {
@@ -998,14 +989,14 @@ module.exports = class Article {
             let result = {
               status: "取消讚成功",
               content: value
-            }
+            };
             res.json(result);
           })
           .catch(error => {
             let result = {
               status: "取消讚失敗",
               err: "伺服器錯誤，請稍後再試"
-            }
+            };
             res.json(error)
           })
       })
@@ -1014,7 +1005,7 @@ module.exports = class Article {
       })
   }
 
-
+//待修
   updateComment(req, res ,next) {
     let updateCommentArrayForListOfComment = [];
     let updateCommentObjForListOfComment = {};
@@ -1022,7 +1013,7 @@ module.exports = class Article {
     let photoObj = {};
     let videoObj = {};
     let seconds = Math.round(Date.now() / 1000);
-    let mediaArray=[]
+    let mediaArray=[];
 
     const form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
@@ -1044,12 +1035,12 @@ module.exports = class Article {
               .then(doc => {
                 for (let i = 0; i < doc.comment.length; i++) {
                   if (doc.comment[i].id == fields.commentID) {
-                    updateForMedialink.push(photoObj)
-                    updateForMedialink.push(videoObj)
+                    updateForMedialink.push(photoObj);
+                    updateForMedialink.push(videoObj);
                     updateCommentObjForListOfComment.mediaLink = updateForMedialink
                     doc.comment[i].listOfComment = updateCommentArrayForListOfComment
                   }
-                  doc.comment.set(i, doc.comment[i])
+                  doc.comment.set(i, doc.comment[i]);
                 }
 
                 doc.save()
@@ -1057,7 +1048,7 @@ module.exports = class Article {
                     let result = {
                       status: "修改圖片和影片留言成功",
                       article: value
-                    }
+                    };
                     res.json(result)
                   })
                   .catch(error => res.json(error));
@@ -1072,7 +1063,7 @@ module.exports = class Article {
           photoObj.link = resultPhotoUrl.secure_url;
 
           mediaArray.push(photoObj)
-          updateCommentObjForListOfComment.mediaLink = mediaArray
+          updateCommentObjForListOfComment.mediaLink = mediaArray;
 
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
@@ -1090,7 +1081,7 @@ module.exports = class Article {
                   let result = {
                     status: "修改圖片留言成功",
                     article: value
-                  }
+                  };
                   res.json(result)
                 })
                 .catch(error => res.json(error));
@@ -1104,17 +1095,17 @@ module.exports = class Article {
           videoObj.type = fields.videoType;
           videoObj.link = resultVideoUrl.secure_url;
 
-          mediaArray.push(videoObj)
+          mediaArray.push(videoObj);
           updateCommentObjForListOfComment.mediaLink = mediaArray
           //updateCommentArrayForListOfComment.push(updateCommentObjForListOfComment);
-         console.log(updateCommentObjForListOfComment)
+         console.log(updateCommentObjForListOfComment);
           articleSchemaModel.findOne({_id: fields.articleID})
             .then(doc => {
               for (let i = 0; i < doc.comment.length; i++) {
                 if (doc.comment[i].id == fields.commentID && doc.comment[i].listOfComment != null) {
                   //doc.comment[i].mediaLink = videoObj
-                  doc.comment[i].listOfComment = updateCommentArrayForListOfComment
-                  doc.comment.set(i, doc.comment[i])
+                  doc.comment[i].listOfComment = updateCommentArrayForListOfComment;
+                  doc.comment.set(i, doc.comment[i]);
                 }
               }
 
@@ -1123,8 +1114,8 @@ module.exports = class Article {
                   let result = {
                     status: "影片留言成功",
                     article: value
-                  }
-                  res.json(result)
+                  };
+                  res.json(result);
                 })
                 .catch(error => res.json(error));
             })
@@ -1141,7 +1132,6 @@ module.exports = class Article {
                 doc.comment.set(i, doc.comment[i])
               }
             }
-            console.log(doc.comment)
 
             doc.save().then(value => {
                 let result = {
@@ -1150,8 +1140,7 @@ module.exports = class Article {
                 }
                 res.json(result);
               })
-              .catch(error => res.json(error))
-
+              .catch(error => res.json(error));
           })
       }
     })
@@ -1160,9 +1149,8 @@ module.exports = class Article {
   deleteComment(req, res, next){
    articleSchemaModel.findOne({_id: req.body.articleID})
       .then(doc => {
-        //console.log(doc)
         for (let i = 0 ; i < doc.comment.length;i++) {
-          if(doc.comment[i].id == req.body.commentID) {
+          if (doc.comment[i].id == req.body.commentID) {
             doc.comment.splice(i, 1);
           }
         }
@@ -1171,15 +1159,15 @@ module.exports = class Article {
           let result = {
             status: "刪除成功",
             content: value
-          }
+          };
           res.json(result);
         })
           .catch(error => {
             let result = {
               status: "刪除失敗",
               err: "伺服器錯誤，請稍後再試"
-            }
-            res.json(error)
+            };
+            res.json(error);
           })
        })
   }

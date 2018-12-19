@@ -9,17 +9,17 @@ module.exports = class Maintain {
 
     maintain.save()
       .then(doc => {
-        res.json("status save to db")
+        res.json("status save to db");
       })
       .catch(error => {
-        console.log("error")
+        console.log("error");
       })
   }
 
   updateMaintainStatus(req, res, next) {
     maintainSchemaModel.find({})
       .then(doc => {
-        if(req.body.status === "true") {
+        if (req.body.status === "true") {
           doc[0].status = true;
           doc[0].save()
             .then(value => {
@@ -58,8 +58,8 @@ module.exports = class Maintain {
   getMaintainStatus(req, res, next) {
     maintainSchemaModel.find({})
       .then(doc=> {
-        res.json(doc[0])
+        res.json(doc[0]);
       })
-      .catch(err => console.log(err))
+      .catch(err => console.log(err));
   }
 }
