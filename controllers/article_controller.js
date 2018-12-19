@@ -161,7 +161,7 @@ module.exports = class Article {
 
 
   async searchArticleByArticleID(req, res, next) {
-    let articleArray = []
+    let articleArray = [];
     let articleOne = await articleSchemaModel.findOne({delete: false, _id: req.body.articleID, privacy: "public"}).exec()
     articleArray.push(articleOne);
     res.json(articleArray)
@@ -186,11 +186,10 @@ module.exports = class Article {
               return a.listOfContent[a.listOfContent.length - 1].time - b.listOfContent[b.listOfContent.length - 1].time;
             });
 
-            let terminateNumber = sortedArticle.length < (req.body.count * 10)- 1 ? sortedArticle.length : (req.body.count * 10)- 1;
-            for(let i = (req.body.count * 10 - 1)- 9; i <= terminateNumber; i++) {
+            let terminateNumber = sortedArticle.length < req.body.count * 10 ? sortedArticle.length : req.body.count * 10;
+            for (let i = (req.body.count * 10 - 1)- 9; i < terminateNumber; i++) {
               //找centerArticle
               let articleObj = {};
-
               //將所有的分類放到categoryArray中，若已在該分類中則不列入centerArticle
               if (categoryArray.indexOf(sortedArticle[i].category) == -1) {
                 categoryArray.push(sortedArticle[i].category);
@@ -209,13 +208,13 @@ module.exports = class Article {
                 }
 
                 //新增留言大頭貼
-                if(sortedArticle[i].comment != null) {
+                if (sortedArticle[i].comment != null) {
                   for (let j = 0; j < sortedArticle[i].comment.length; j++){
                     let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
                     if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
                       sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
                     }
-                    else if(commentAvatarLink.length > 1) {
+                    else if (commentAvatarLink.length > 1) {
                       sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
                     }
                   }
@@ -225,26 +224,26 @@ module.exports = class Article {
               //找sameCategory的文章
               for (let j = 0; j < centerArray.length; j++) {
                 if (sortedArticle[i].category === centerArray[j].centerArticle.category && sortedArticle[i].id !== centerArray[j].centerArticle.id && centerArray[j].sameCategory.length < 5 ) {
-                  centerArray[j].sameCategory.push(sortedArticle[i])
+                  centerArray[j].sameCategory.push(sortedArticle[i]);
 
                   //新增文章大頭貼
                   let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
                   if (authorAvatarLink.length == 1) {
                     sortedArticle[i].avatarLink = authorAvatarLink
                   }
-                  else if(authorAvatarLink.length > 1) {
+                  else if (authorAvatarLink.length > 1) {
                     sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
                   }
 
                   //新增留言大頭貼
-                  if(sortedArticle[i].comment != null) {
+                  if (sortedArticle[i].comment != null) {
                     for (let j = 0; j < sortedArticle[i].comment.length; j++){
                       //console.log(sortedArticle[i].comment[j].id)
                       let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
                       if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
                         sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
                       }
-                      else if(commentAvatarLink.length > 1) {
+                      else if (commentAvatarLink.length > 1) {
                         sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
                       }
                     }
@@ -259,18 +258,18 @@ module.exports = class Article {
                   if (authorAvatarLink.length == 1) {
                     sortedArticle[i].avatarLink = authorAvatarLink
                   }
-                  else if(authorAvatarLink.length > 1) {
+                  else if (authorAvatarLink.length > 1) {
                     sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
                   }
 
                   //新增留言大頭貼
-                  if(sortedArticle[i].comment != null) {
+                  if (sortedArticle[i].comment != null) {
                     for (let j = 0; j < sortedArticle[i].comment.length; j++){
                       let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
                       if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
                         sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
                       }
-                      else if(commentAvatarLink.length > 1) {
+                      else if (commentAvatarLink.length > 1) {
                         sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
                       }
                     }
@@ -291,14 +290,14 @@ module.exports = class Article {
 
             function getFriendsArticle(userID, profile , article) {
               let friendsArticle =[];
-              for(let i = 0; i < profile.length; i++) {
+              for (let i = 0; i < profile.length; i++) {
                 //profile.friends型態是陣列，所以用==
-                if(userID == profile[i].userID) {
+                if (userID == profile[i].userID) {
                   //撈出所有好友的ID console.log(profile[i].friends)
                   //在撈出好友的文章
                   for(let j = 0; j < article.length; j++) {
                     for (let friendsID of profile[i].friends) {
-                      if(article[j].authorID === friendsID) {
+                      if (article[j].authorID === friendsID) {
                         friendsArticle.push(article[j])
                       }
                     }
@@ -360,7 +359,7 @@ module.exports = class Article {
                       if (commentAvatarLink.length == 1) {
                         getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
                       }
-                      else if(commentAvatarLink.length > 1) {
+                      else if (commentAvatarLink.length > 1) {
                         getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
                       }
                     }
@@ -375,7 +374,7 @@ module.exports = class Article {
               let existedArticleIDArray = [];
               for (let j = 0; j < sortedArticle.length; j++) {
                 if (category === sortedArticle[j].category && existedArticleIDArray.indexOf(sortedArticle[j].id) == -1) {
-                  existedArticleIDArray.push(sortedArticle[j])
+                  existedArticleIDArray.push(sortedArticle[j]);
                 }
               }
               return existedArticleIDArray;
@@ -392,15 +391,15 @@ module.exports = class Article {
 
             function getFriendsArticle(userID, profile , article) {
               let friendsArticle =[];
-              for(let i = 0; i < profile.length; i++) {
+              for (let i = 0; i < profile.length; i++) {
                 //profile.friends型態是陣列，所以用==
-                if(userID == profile[i].userID) {
+                if (userID == profile[i].userID) {
                   //撈出所有好友的ID console.log(profile[i].friends)
                   //再撈出好友的文章
                   for(let j = 0; j < article.length; j++) {
                     for (let friendsID of profile[i].friends) {
-                      if(article[j].authorID === friendsID) {
-                        friendsArticle.push(article[j])
+                      if (article[j].authorID === friendsID) {
+                        friendsArticle.push(article[j]);
                       }
                     }
                   }
@@ -518,136 +517,148 @@ module.exports = class Article {
   }
 
 
-  //待修
   updateArticle(req, res, next) {
-    let updateObj = {};
     let photoObj = {};
     let videoObj = {};
     let seconds = Math.round(Date.now() / 1000);
     const form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
-      updateObj.time = seconds;
-      updateObj.content = fields.content;
+      articleSchemaModel.findOne({_id: fields.articleID})
+        .then(doc => {
+          //修改文字
+          if(fields.content !== undefined  && files.image === undefined  && files.video === undefined ) {
+            let updateContentObj = {};
+            updateContentObj.time = seconds;
+            updateContentObj.content = fields.content;
 
-      let mediaArray=[]
-      // 修改圖片和影片
-      if (files.image != null && files.video != null) {
-        cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
-          photoObj.type = fields.photoType;
-          photoObj.link = resultPhotoUrl.secure_url;
-          mediaArray.push(photoObj)
+            //判斷原始文章是否有圖片影片，若有則加入
+            if(doc.listOfContent[doc.listOfContent.length-1].mediaLink !== undefined) {
+              updateContentObj.mediaLink = doc.listOfContent[doc.listOfContent.length-1].mediaLink;
+              doc.listOfContent.push(updateContentObj);
+            }else {
+              doc.listOfContent.push(updateContentObj);
+            }
 
-          cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
-            videoObj.type = fields.videoType; //mp4
-            videoObj.link = resultVideoUrl.secure_url;
-            mediaArray.push(videoObj)
-            updateObj.mediaLink = mediaArray
-
-            articleSchemaModel.findOne({_id: fields.articleID})
-              .then(doc => {
-                doc.listOfContent.push(updateObj);
-                // doc.mediaLink.push(photoObj);
-                // doc.mediaLink.push(videoObj);
-                if (fields.privacy != null) doc.privacy = fields.privacy //文章權限
-                if (fields.category != null) doc.category = fields.category
-                if (fields.title!= null) doc.title = fields.title
-                if (fields.hashTags != null) doc.hashTags = fields.hashTags
-
-                doc.save()
-                  .then(posts => {
-                    let result = {
-                      status: "圖片和影片修改成功",
-                      article: posts
-                    }
-                    res.json(result)
-                  })
-                  .catch(error => res.json(error));
-              })
-              .catch(error => res.json(error));
-          }, {resource_type: "video"});
-        }, {folder: 'Social_Media/mediaLink'});
-
-        //修改圖片
-      } else if (files.image != null && files.video == null) {
-        cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
-          photoObj.type = fields.photoType;
-          photoObj.link = resultPhotoUrl.secure_url;
-          mediaArray.push(photoObj)
-          updateObj.mediaLink = mediaArray
-
-          articleSchemaModel.findOne({_id: fields.articleID})
-            .then(doc => {
-              doc.listOfContent.push(updateObj);
-              //doc.mediaLink.push(photoObj);
-              if (fields.privacy != null) doc.privacy = fields.privacy //文章權限
-              if (fields.category != null) doc.category = fields.category
-              if (fields.title!= null) doc.title = fields.title
-              if (fields.hashTags != null) doc.hashTags = fields.hashTags
-
-              doc.save()
-                .then(posts => {
-                  let result = {
-                    status: "圖片修改成功",
-                    article: posts
-                  }
-                  res.json(result)
-                })
-                .catch(error => res.json(error));
-            })
-            .catch(error => res.json(error));
-        }, {folder: 'Social_Media/mediaLink'});
-
-        //修改影片
-      } else if (files.image == null && files.video != null) {
-        cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
-          videoObj.type = fields.videoType;
-          videoObj.link = resultVideoUrl.secure_url;
-          mediaArray.push(videoObj)
-          updateObj.mediaLink = mediaArray
-
-          articleSchemaModel.findOne({_id: fields.articleID})
-            .then(doc => {
-              doc.listOfContent.push(updateObj);
-              //doc.mediaLink.push(videoObj);
-              if (fields.privacy != null) doc.privacy = fields.privacy //文章權限
-              if (fields.category != null) doc.category = fields.category
-              if (fields.title!= null) doc.title = fields.title
-              if (fields.hashTags != null) doc.hashTags = fields.hashTags
-
-              doc.save()
-                .then(posts => {
-                  let result = {
-                    status: "影片修改成功",
-                    article: posts
-                  }
-                  res.json(result)
-                })
-                .catch(error => res.json(error));
-            })
-            .catch(error => res.json(error));
-        }, {folder: 'Social_Media/mediaLink'});
-
-        //修改文字
-      } else if (files.image == null && files.video == null) {
-        articleSchemaModel.findOne({_id: fields.articleID})
-          .then(doc => {
-            doc.listOfContent.push(updateObj);
-            if (fields.privacy != null) doc.privacy = fields.privacy;
-            if (fields.category != null) doc.category = fields.category;
-            if (fields.title!= null) doc.title = fields.title;
-            if (fields.hashTags != null) doc.hashTags = fields.hashTags;
-
+            if (fields.privacy !== null) doc.privacy = fields.privacy;
+            if (fields.category !== null) doc.category = fields.category;
+            if (fields.title!== null) doc.title = fields.title;
+            if (fields.hashTags !== null) doc.hashTags = fields.hashTags;
+            //console.log(doc)
             doc.save()
               .then(value => {
                 let result = {
-                  status: "發文修改成功",
+                  status: "Update the content has been successful.",
                   content: value
                 }
                 res.json(result);
               })
               .catch(error => res.json(error));
-          })
-      }
+
+          } else if(fields.content === undefined  && files.image !== undefined  && files.video === undefined) {
+            let updatePhotoObj = {};
+            updatePhotoObj.time = seconds;
+            //判斷原始文章是否有影片，若有則加入
+            if(doc.listOfContent[doc.listOfContent.length-1].mediaLink !== undefined) {
+              let mediaLinkArray = searchVideoLink(doc.listOfContent[doc.listOfContent.length-1].mediaLink);
+
+              //判斷原始文章是否有文字，若有則加入
+              if(doc.listOfContent[doc.listOfContent.length-1].content !== undefined) {
+                updatePhotoObj.content = doc.listOfContent[doc.listOfContent.length - 1].content
+                //doc.listOfContent.push(articleObj);
+              }
+
+              //修改圖片
+              cloudinary.uploader.upload(files.image.path, function (resultPhotoUrl) {
+                photoObj.type = fields.photoType;
+                photoObj.link = resultPhotoUrl.secure_url;
+                mediaLinkArray.push(photoObj);
+                updatePhotoObj.mediaLink = mediaLinkArray;
+                doc.listOfContent.push(updatePhotoObj);
+
+                if (fields.privacy !== null) doc.privacy = fields.privacy;
+                if (fields.category !== null) doc.category = fields.category;
+                if (fields.title!== null) doc.title = fields.title;
+                if (fields.hashTags !== null) doc.hashTags = fields.hashTags;
+
+                doc.save()
+                  .then(value => {
+                    let result = {
+                      status: "Update the photo has been successful.",
+                      content: value
+                    }
+                    res.json(result);
+                  })
+                  .catch(error => res.json(error));
+              });
+            }
+
+            function searchVideoLink(mediaLink) {
+              let mediaObj = {};
+              let mediaArray = [];
+              for(let i = 0; i < mediaLink.length; i++) {
+                if(mediaLink[i].type == 'mp4' || mediaLink[i].type == 'mp3') {
+                  mediaObj.type = mediaLink[i].type;
+                  mediaObj.link = mediaLink[i].link;
+                  mediaArray.push(mediaObj)
+                }
+              }
+              return mediaArray;
+            }
+
+          } else if(fields.content === undefined  && files.image === undefined  && files.video !== undefined) {
+            let updateVideoObj = {};
+            updateVideoObj.time = seconds;
+            //判斷原始文章是否有圖片，若有則加入
+            if (doc.listOfContent[doc.listOfContent.length - 1].mediaLink !== undefined) {
+              let mediaLinkArray = searchPhotoLink(doc.listOfContent[doc.listOfContent.length - 1].mediaLink);
+
+              //判斷原始文章是否有文字，若有則加入
+              if (doc.listOfContent[doc.listOfContent.length - 1].content !== undefined) {
+                updateVideoObj.content = doc.listOfContent[doc.listOfContent.length - 1].content;
+              }
+
+              //修改影片
+              cloudinary.uploader.upload_large(files.video.path, function (resultVideoUrl) {
+                videoObj.type = fields.videoType; //mp4
+                videoObj.link = resultVideoUrl.secure_url;
+                mediaLinkArray.push(videoObj);
+                updateVideoObj.mediaLink = mediaLinkArray;
+                doc.listOfContent.push(updateVideoObj);
+
+                if (fields.privacy !== null) doc.privacy = fields.privacy;
+                if (fields.category !== null) doc.category = fields.category;
+                if (fields.title !== null) doc.title = fields.title;
+                if (fields.hashTags !== null) doc.hashTags = fields.hashTags;
+
+                doc.save()
+                  .then(value => {
+                    let result = {
+                      status: "Update the video has been successful.",
+                      content: value
+                    }
+                    res.json(result);
+                  })
+                  .catch(error => res.json(error));
+              });
+            }
+
+            function searchPhotoLink(mediaLink) {
+              let mediaObj = {};
+              let mediaArray = [];
+              for (let i = 0; i < mediaLink.length; i++) {
+                if (mediaLink[i].type == 'jpg' || mediaLink[i].type == 'jpeg'|| mediaLink[i].type == 'png') {
+                  mediaObj.type = mediaLink[i].type;
+                  mediaObj.link = mediaLink[i].link;
+                  mediaArray.push(mediaObj);
+                }
+              }
+              return mediaArray;
+            }
+          }
+        })
+        .catch(err => {
+          console.log(err);
+        })
     })
   }
 
