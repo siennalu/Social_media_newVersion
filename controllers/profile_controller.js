@@ -85,47 +85,160 @@ module.exports = class Profile {
 
 
   friendsFollowing(req, res, next) {
+    let fanObj = {};
+    let followingObj = {};
+    let userIDForFansArray = [];
+
     profileSchemaModel.findOne({userID: req.body.userID_followed})  //被追蹤的人
       .then(data => {
-        //確認是否已存在ID
-        if (data.fans.indexOf(req.body.userID_following) == -1) data.fans.push(req.body.userID_following);
-        data.save()
-          .then(value => {
-            console.log("fans created");
+        profileSchemaModel.find({})
+          .then(all_profile => {
+
+            //若目前尚無任何粉絲則直接將following加入
+            if (data.fans.length === 0) {
+              console.log("長度為0");
+              userIDForFansArray.push(req.body.userID_following);
+              fanObj = searchUserNameAndAvatarLink(all_profile, req.body.userID_following);
+              data.fans.push(fanObj);
+
+              data.save()
+                .then(value => {
+                  console.log("fans created")
+                })
+                .catch(error => console.log(error));
+
+
+            } else if (data.fans.length !== 0) {
+
+              //先將followed這個人的所有fansUserID 放入userIDForFansArray中
+              for (let i = 0; i < data.fans.length; i++) {
+                userIDForFansArray.push(data.fans[i].userID);
+                console.log("目前粉絲ID" + userIDForFansArray);
+              }
+
+              //確認沒有粉絲重複
+              if (userIDForFansArray.indexOf(req.body.userID_following) === -1) {
+                console.log("userIDForFans:" + userIDForFansArray);
+
+                userIDForFansArray.push(req.body.userID_following);
+                fanObj = searchUserNameAndAvatarLink(all_profile, req.body.userID_following);
+                data.fans.push(fanObj);
+
+                console.log(data);
+              }
+
+              data.save()
+                .then(value => {
+                  console.log("fans created")
+                })
+                .catch(error => console.log(error));
+            }
           })
-          .catch(error => console.log(error));
       })
       .catch(error => console.log(error));
+
     profileSchemaModel.findOne({userID: req.body.userID_following})   //追蹤的人
       .then(doc => {
-        //確認是否已追蹤
-        if (doc.following.indexOf(req.body.userID_followed) == -1) doc.following.push(req.body.userID_followed);
-        doc.save()
-          .then(result => {
-            console.log("following created");
+        profileSchemaModel.find({})
+          .then(all_profile => {
+
+            let userIDForFollowingArray = [];
+            if (doc.following.length === 0) {
+              //console.log("追蹤長度為0");
+
+              //若目前尚無任何追蹤則直接將followed加入
+              if (userIDForFollowingArray.indexOf(req.body.userID_followed) === -1) {
+                userIDForFollowingArray.push(req.body.userID_followed);
+                followingObj = searchUserNameAndAvatarLink(all_profile, req.body.userID_followed);
+                doc.following.push(followingObj);
+                console.log(followingObj);
+              }
+
+              doc.save()
+                .then(result => {
+                  console.log("following created")
+                })
+                .catch(error => console.log(error));
+              let result = {
+                status: "追蹤成功",
+                content: doc
+              };
+              res.json(result);
+
+            } else if (doc.following.length !== 0) {
+              //已有粉絲，但followed尚未加入
+
+              for (let i = 0; i < doc.following.length; i++) {
+                userIDForFollowingArray.push(doc.following[i].userID);
+                //console.log("目前following得ID" + userIDForFollowingArray)
+              }
+
+              if (userIDForFollowingArray.indexOf(req.body.userID_followed) === -1) {
+                userIDForFollowingArray.push(req.body.userID_followed);
+                //console.log("追蹤長度不為零 :" + userIDForFollowingArray);
+                followingObj = searchUserNameAndAvatarLink(all_profile, req.body.userID_followed);
+                doc.following.push(followingObj);
+              }
+
+
+              doc.save()
+                .then(result => {
+                  console.log("following created")
+                })
+                .catch(error => console.log(error));
+              let result = {
+                status: "追蹤成功",
+                content: doc
+              };
+              res.json(result);
+            }
           })
-          .catch(error => console.log(error));
-        let result = {
-          status: "追蹤成功",
-          content: doc
-        };
-        res.json(result);
+          .catch(error => { console.log("error")});
       })
       .catch(error => {
         let result = {
           status: "追蹤失敗",
           err: "伺服器錯誤，請稍後再試"
+        };
+        res.json(error)
+      });
+
+    //回傳物件:userID userName 和 avatarLink
+    function searchUserNameAndAvatarLink(all_profile, userID) {
+      let userObj = {};
+      for (let i = 0; i < all_profile.length; i++) {
+        if (userID === all_profile[i].userID) {
+          userObj.userID = userID;
+          userObj.userName = all_profile[i].userName;
+          userObj.avatarLink = all_profile[i].avatarLink;
         }
-        res.json(error);
-      })
+      }
+      return userObj;
+    }
   }
 
 
   friendsUnfollowing(req, res, next) {
+    let fansUserIDArray = [];
+    let followingUserIDArray = [];
     profileSchemaModel.findOne({userID: req.body.userID_followed})  //被追蹤的人
       .then(data_follow => {
-        //確認是否已為粉絲
-        if (data_follow.fans.indexOf(req.body.userID_following) != -1) data_follow.fans.splice(data_follow.fans.indexOf(req.body.userID_following), 1);
+
+        //先把 fansUserId放在陣列中
+        for (let i = 0; i < data_follow.fans.length; i++) {
+          fansUserIDArray.push(data_follow.fans[i].userID);
+        }
+
+        //確認 followed的 fans裡面是否已有following
+        if (fansUserIDArray.indexOf(req.body.userID_following) !== -1) {
+          //找到該userID並刪除
+          for (let j = 0; j < data_follow.fans.length; j++) {
+            if (data_follow.fans[j].userID === req.body.userID_following ) {
+              data_follow.fans.splice(fansUserIDArray.indexOf(req.body.userID_following), 1);
+            }
+          }
+        }
+        //console.log(data_follow);
         data_follow.save()
           .then(value => {
             console.log("fans delete");
@@ -133,13 +246,28 @@ module.exports = class Profile {
           .catch(error => console.log(error));
       })
       .catch(error => console.log(error));
+
+
     profileSchemaModel.findOne({userID: req.body.userID_following})   //追蹤的人
       .then(doc_follow => {
-        //確認是否已追蹤
-        if (doc_follow.following.indexOf(req.body.userID_followed) != -1) doc_follow.following.splice(doc_follow.following.indexOf(req.body.userID_followed), 1);
+        //先把 followingUserIDArray 放在陣列中
+        for (let i = 0; i < doc_follow.following.length; i++) {
+          followingUserIDArray.push(doc_follow.following[i].userID);
+        }
+
+        //確認 following中的 following裡面是否已有followed
+        if (followingUserIDArray.indexOf(req.body.userID_followed) !== -1) {
+          //找到該userID並刪除
+          for (let j = 0; j < doc_follow.following.length; j++) {
+            if (doc_follow.following[j].userID === req.body.userID_followed) {
+              doc_follow.following.splice(followingUserIDArray.indexOf(req.body.userID_followed), 1);
+            }
+          }
+        }
+
         doc_follow.save()
           .then(result => {
-            console.log("following delete")
+            console.log("following delete");
           })
           .catch(error => console.log(error));
         let result = {
@@ -155,7 +283,6 @@ module.exports = class Profile {
         };
         res.json(error);
       })
-
   }
 
 

@@ -37,7 +37,7 @@ module.exports = class Article {
       article.hashTags = fields.hashTags;
       contentForObject.time = seconds;
       contentForObject.content = fields.content;
-      let mediaArray =[];
+      let mediaArray = [];
 
       //上傳圖片及照片
       if (files.image != null && files.video != null) {
@@ -172,6 +172,7 @@ module.exports = class Article {
 
     articleSchemaModel.find({delete: false, privacy: "public"})
       .then(doc=> {
+
         profileSchemaModel.find({})
           .then(all_profile => {
 
@@ -198,10 +199,10 @@ module.exports = class Article {
                 //新增文章大頭貼
                 let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
                 if (authorAvatarLink.length == 1) {
-                  sortedArticle[i].avatarLink = authorAvatarLink;
+                  sortedArticle[i].avatarLink = authorAvatarLink
                 }
-                else if(authorAvatarLink.length > 1) {
-                  sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1]);
+                else if (authorAvatarLink.length > 1) {
+                  sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
                 }
 
                 //新增留言大頭貼
@@ -209,18 +210,20 @@ module.exports = class Article {
                   for (let j = 0; j < sortedArticle[i].comment.length; j++) {
                     let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
                     if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
-                      sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink;
+                      sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
                     }
                     else if (commentAvatarLink.length > 1) {
-                      sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
+                      sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length - 1])
                     }
                   }
                 }
               }
+            }
 
-              //找sameCategory的文章
-              for (let j = 0; j < centerArray.length; j++) {
-                if (sortedArticle[i].category === centerArray[j].centerArticle.category && sortedArticle[i].id !== centerArray[j].centerArticle.id && centerArray[j].sameCategory.length < 5 ) {
+            for (let j = 0; j < centerArray.length; j++) {
+              for (let i = (req.body.count * 10 - 1)- 9; i < terminateNumber; i++) {
+                //找sameCategory的文章
+                if (centerArray[j].centerArticle.category === sortedArticle[i].category && sortedArticle[i].id !== centerArray[j].centerArticle.id && centerArray[j].sameCategory.length < 5) {
                   centerArray[j].sameCategory.push(sortedArticle[i]);
 
                   //新增文章大頭貼
@@ -229,51 +232,53 @@ module.exports = class Article {
                     sortedArticle[i].avatarLink = authorAvatarLink
                   }
                   else if (authorAvatarLink.length > 1) {
-                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1])
+                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
                   }
 
                   //新增留言大頭貼
                   if (sortedArticle[i].comment != null) {
-                    for (let j = 0; j < sortedArticle[i].comment.length; j++){
+                    for (let j = 0; j < sortedArticle[i].comment.length; j++) {
                       //console.log(sortedArticle[i].comment[j].id)
                       let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
                       if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
                         sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
                       }
                       else if (commentAvatarLink.length > 1) {
-                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
+                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length - 1])
                       }
                     }
                   }
                 }
 
                 //找sameAuthor的文章
-                if (sortedArticle[i].author === centerArray[j].centerArticle.author && sortedArticle[i].id !== centerArray[j].centerArticle.id && centerArray[j].sameAuthor.length < 5) {
+                if (centerArray[j].centerArticle.authorID === sortedArticle[i].authorID && centerArray[j].centerArticle._id !== sortedArticle[i]._id && centerArray[j].sameAuthor.length < 5) {
                   centerArray[j].sameAuthor.push(sortedArticle[i]);
+
                   //新增文章大頭貼
                   let authorAvatarLink = authorToAvatarLink(sortedArticle[i].authorID);
                   if (authorAvatarLink.length == 1) {
-                    sortedArticle[i].avatarLink = authorAvatarLink;
+                    sortedArticle[i].avatarLink = authorAvatarLink
                   }
                   else if (authorAvatarLink.length > 1) {
-                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length-1]);
+                    sortedArticle[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
                   }
 
                   //新增留言大頭貼
                   if (sortedArticle[i].comment != null) {
                     for (let j = 0; j < sortedArticle[i].comment.length; j++) {
-                      let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID);
+                      let commentAvatarLink = authorToAvatarLink(sortedArticle[i].comment[j].commenterID)
                       if (commentAvatarLink.length == 1 || commentAvatarLink.length == 0) {
-                        sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink;
+                        sortedArticle[i].comment[j].commenter_avatarLink = commentAvatarLink
                       }
                       else if (commentAvatarLink.length > 1) {
-                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
+                        sortedArticle[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length - 1])
                       }
                     }
                   }
                 }
               }
             }
+
 
 
             function authorToAvatarLink(id) {
@@ -286,34 +291,54 @@ module.exports = class Article {
 
 
             function getFriendsArticle(userID, profile , article) {
-              let friendsArticle =[];
-              for (let i = 0; i < profile.length; i++) {
+              //console.log(userID)
+              let friendsArticle = [];
+              let finallyFriendsArticle = [];
+              for(let i = 0; i < profile.length; i++) {
                 //profile.friends型態是陣列，所以用==
                 if (userID == profile[i].userID) {
-                  //撈出所有好友的ID console.log(profile[i].friends)
-                  //在撈出好友的文章
-                  for(let j = 0; j < article.length; j++) {
+                  //撈出好友的文章
+                  for (let j = 0; j < article.length; j++) {
                     for (let friendsID of profile[i].friends) {
                       if (article[j].authorID === friendsID) {
-                        friendsArticle.push(article[j])
+                        //console.log(updatedUserName(article[j].author, profile , article))
+                        friendsArticle.push(article[j]);
+                        //確定更新userName
+                        finallyFriendsArticle = updatedUserName(friendsArticle, profile);
+                        //console.log(finallyFriendsArticle)
                       }
+
+                    }
+                    //若userID為自己則顯示自己發的文章
+                    if(userID === article[j].authorID) {
+                      friendsArticle.push(article[j]);
+                      //確定更新userName
+                      finallyFriendsArticle = updatedUserName(friendsArticle, profile);
                     }
                   }
                 }
               }
-              return friendsArticle;
+              return finallyFriendsArticle;
             }
+
+
+            function updatedUserName (article, profile) {
+              let updatefriendsArticleArray = [];
+              for (let i = 0; i < article.length; i++) {
+                for (let j = 0; j < profile.length; j++) {
+                  if (article[i].authorID === profile[j].userID) {
+                    article[i].author = profile[j].userName;
+                    updatefriendsArticleArray.push(article[i])
+                  }
+                }
+              }
+              return updatefriendsArticleArray;
+            }
+
             res.json(centerArray);
           })
-          .catch(err => {
-            console.log(err);
-          })
-      })
-      .catch(err => {
-        console.log(err);
       })
   }
-
 
 
   //撈五篇同分類的文章
@@ -342,15 +367,19 @@ module.exports = class Article {
 
             //已存在之全部的文章ID
             let allArticleID = req.body.articleIDInSameCategory;
+            if (typeof (req.body.articleIDInSameCategory) === String) {
+              allArticleID = JSON.parse(req.body.articleIDInSameCategory);
+            }
+
             for (let j = 0; j < existArticleIDArray.length; j++) {
-              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5);
+              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5)
                 getFiveArticles.push(existArticleIDArray[j]);
 
               for (let i = 0; i < getFiveArticles.length; i++) {
                 if (getFiveArticles[i] != null) {
                   //文章大頭貼
                   let authorAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].authorID);
-                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink;
+                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
                   else if (authorAvatarLink.length > 1) {
                     getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
                   }
@@ -358,12 +387,12 @@ module.exports = class Article {
                   //留言大頭貼
                   if(getFiveArticles[i].comment != null) {
                     for (let j = 0; j < getFiveArticles[i].comment.length; j++){
-                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID);
+                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
                       if (commentAvatarLink.length == 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink;
+                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
                       }
-                      else if (commentAvatarLink.length > 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
+                      else if(commentAvatarLink.length > 1) {
+                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
                       }
                     }
                   }
@@ -377,7 +406,7 @@ module.exports = class Article {
               let existedArticleIDArray = [];
               for (let j = 0; j < sortedArticle.length; j++) {
                 if (category === sortedArticle[j].category && existedArticleIDArray.indexOf(sortedArticle[j].id) == -1) {
-                  existedArticleIDArray.push(sortedArticle[j]);
+                  existedArticleIDArray.push(sortedArticle[j])
                 }
               }
               return existedArticleIDArray;
@@ -394,36 +423,53 @@ module.exports = class Article {
 
             function getFriendsArticle(userID, profile , article) {
               let friendsArticle =[];
-              for (let i = 0; i < profile.length; i++) {
+              let finallyFriendsArticle = [];
+              for(let i = 0; i < profile.length; i++) {
                 //profile.friends型態是陣列，所以用==
-                if (userID == profile[i].userID) {
+                if(userID == profile[i].userID) {
                   //撈出所有好友的ID console.log(profile[i].friends)
                   //再撈出好友的文章
                   for(let j = 0; j < article.length; j++) {
                     for (let friendsID of profile[i].friends) {
                       if (article[j].authorID === friendsID) {
-                        friendsArticle.push(article[j]);
+                        article[j].author = profile[i].userName;
+                        friendsArticle.push(article[j])
+                        //確定更新userName
+                        finallyFriendsArticle = updatedUserName(friendsArticle, profile);
                       }
+                    }
+                    //若userID為自己則顯示自己發的文章
+                    if (userID === article[j].authorID){
+                      friendsArticle.push(article[j]);
+                      //確定更新userName
+                      finallyFriendsArticle = updatedUserName(friendsArticle, profile);
                     }
                   }
                 }
               }
-              return friendsArticle;
+              return finallyFriendsArticle;
+            }
+
+
+            function updatedUserName (article, profile) {
+              let updatefriendsArticleArray = [];
+              for (let i = 0; i < article.length; i++) {
+                for (let j = 0; j < profile.length; j++) {
+                  if (article[i].authorID === profile[j].userID) {
+                    article[i].author = profile[j].userName;
+                    updatefriendsArticleArray.push(article[i])
+                  }
+                }
+              }
+              return updatefriendsArticleArray;
             }
           })
-          .catch(err => {
-            console.log(err);
-          })
-      })
-      .catch(err => {
-        console.log(err);
       })
   }
 
 
   //撈五篇同作者的文章
   searchMoreArticlesByTheSameAuthor(req, res, next) {
-
     articleSchemaModel.find({delete: false, privacy: "public"})
       .then(doc=> {
         profileSchemaModel.find({})
@@ -440,37 +486,45 @@ module.exports = class Article {
             //根據作者給文章
             let existArticleIDArray = [];
             let getFiveArticles = [];
+            let finalExistArticleIDArray = [];
             for (let i = 0; i < sortedArticle.length; i++) {
 
               if (sortedArticle[i].authorID === req.body.authorID) {
                 existArticleIDArray = searchExistedArticleID(req.body.authorID);
+                //確定更新userName
+                finalExistArticleIDArray = updatedUserName(existArticleIDArray, all_profile);
+                //console.log(finalExistArticleIDArray)
               }
             }
 
+
             //已存在之全部的文章ID
             let allArticleID = req.body.articleIDInSameAuthor;
-            for (let j = 0; j < existArticleIDArray.length; j++) {
-              if (allArticleID.indexOf(existArticleIDArray[j].id) == -1 && getFiveArticles.length < 5);
-                getFiveArticles.push(existArticleIDArray[j]);
+            if (typeof (req.body.articleIDInSameAuthor) === String) {
+              allArticleID = JSON.parse(req.body.articleIDInSameAuthor);
+            }
+            for (let j = 0; j < finalExistArticleIDArray.length; j++) {
+              if (allArticleID.indexOf(finalExistArticleIDArray[j].id) == -1 && getFiveArticles.length < 5)
+                getFiveArticles.push(finalExistArticleIDArray[j]);
 
               for (let i = 0; i < getFiveArticles.length; i++) {
                 if (getFiveArticles[i] != null) {
                   //文章大頭貼
                   let authorAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].authorID);
-                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink;
+                  if (authorAvatarLink.length == 1) getFiveArticles[i].avatarLink = authorAvatarLink
                   else if (authorAvatarLink.length > 1) {
-                    getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1]);
+                    getFiveArticles[i].avatarLink.push(authorAvatarLink[authorAvatarLink.length - 1])
                   }
 
                   //留言大頭貼
                   if(getFiveArticles[i].comment != null) {
-                    for (let j = 0; j < getFiveArticles[i].comment.length; j++) {
-                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID);
+                    for (let j = 0; j < getFiveArticles[i].comment.length; j++){
+                      let commentAvatarLink = avatarIDToAvatarLink(getFiveArticles[i].comment[j].commenterID)
                       if (commentAvatarLink.length == 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink;
+                        getFiveArticles[i].comment[j].commenter_avatarLink = commentAvatarLink
                       }
-                      else if (commentAvatarLink.length > 1) {
-                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1]);
+                      else if(commentAvatarLink.length > 1) {
+                        getFiveArticles[i].comment[j].commenter_avatarLink.push(commentAvatarLink[commentAvatarLink.length-1])
                       }
                     }
                   }
@@ -484,7 +538,7 @@ module.exports = class Article {
               let existedArticleIDArray = [];
               for (let j = 0; j < sortedArticle.length; j++) {
                 if (author === sortedArticle[j].authorID && existedArticleIDArray.indexOf(sortedArticle[j].id) == -1) {
-                  existedArticleIDArray.push(sortedArticle[j]);
+                  existedArticleIDArray.push(sortedArticle[j])
                 }
               }
               return existedArticleIDArray;
@@ -498,16 +552,45 @@ module.exports = class Article {
                 }
               }
             }
+
+
+            function updatedUserName (article, profile) {
+              let updatefriendsArticleArray = [];
+              for (let i = 0; i < article.length; i++) {
+                for (let j = 0; j < profile.length; j++) {
+                  if (article[i].authorID === profile[j].userID) {
+                    article[i].author = profile[j].userName;
+                    updatefriendsArticleArray.push(article[i])
+                  }
+                }
+              }
+              return updatefriendsArticleArray;
+            }
+
+            // function getFriendsArticle(userID, profile , article) {
+            //   let friendsArticle =[];
+            //   console.log("123")
+            //
+            //   for(let i = 0; i < profile.length; i++) {
+            //     //profile.friends型態是陣列，所以用==
+            //     if(userID == profile[i].userID) {
+            //       //撈出所有好友的ID console.log(profile[i].friends)
+            //       //再撈出好友的文章
+            //       for(let j = 0; j < article.length; j++) {
+            //         for (let friendsID of profile[i].friends) {
+            //           if(article[j].authorID === friendsID) {
+            //             friendsArticle.push(article[j]);
+            //
+            //           }
+            //         }
+            //       }
+            //     }
+            //   }
+            //   return friendsArticle;
+            // }
           })
-          .catch(err => {
-            console.log(err);
-          })
-      })
-      .catch(err => {
-        console.log(err);
       })
   }
-
 
   updateArticle(req, res, next) {
     let photoObj = {};
@@ -1005,7 +1088,7 @@ module.exports = class Article {
       })
   }
 
-//待修
+
   updateComment(req, res ,next) {
     let updateCommentArrayForListOfComment = [];
     let updateCommentObjForListOfComment = {};
