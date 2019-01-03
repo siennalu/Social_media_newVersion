@@ -96,7 +96,7 @@ module.exports = class Profile {
 
             //若目前尚無任何粉絲則直接將following加入
             if (data.fans.length === 0) {
-              console.log("長度為0");
+              //console.log("長度為0");
               userIDForFansArray.push(req.body.userID_following);
               fanObj = searchUserNameAndAvatarLink(all_profile, req.body.userID_following);
               data.fans.push(fanObj);
@@ -113,12 +113,12 @@ module.exports = class Profile {
               //先將followed這個人的所有fansUserID 放入userIDForFansArray中
               for (let i = 0; i < data.fans.length; i++) {
                 userIDForFansArray.push(data.fans[i].userID);
-                console.log("目前粉絲ID" + userIDForFansArray);
+                //console.log("目前粉絲ID" + userIDForFansArray);
               }
 
               //確認沒有粉絲重複
               if (userIDForFansArray.indexOf(req.body.userID_following) === -1) {
-                console.log("userIDForFans:" + userIDForFansArray);
+                //console.log("userIDForFans:" + userIDForFansArray);
 
                 userIDForFansArray.push(req.body.userID_following);
                 fanObj = searchUserNameAndAvatarLink(all_profile, req.body.userID_following);

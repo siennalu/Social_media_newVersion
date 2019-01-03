@@ -1,6 +1,7 @@
 const articleSchemaModel = require('../models/article_model.js');
 const profileSchemaModel = require('../models/profile_model.js');
 const userSchemaModel = require('../models/user_model.js');
+const sendNotification = require('./notification.js');
 const uniqid = require('uniqid');
 const formidable = require('formidable');
 const cloudinary = require('cloudinary');
@@ -189,7 +190,7 @@ module.exports = class Article {
               //找centerArticle
               let articleObj = {};
               //將所有的分類放到categoryArray中，若已在該分類中則不列入centerArticle
-              if (categoryArray.indexOf(sortedArticle[i].category) == -1) {
+              //if (categoryArray.indexOf(sortedArticle[i].category) == -1) {
                 categoryArray.push(sortedArticle[i].category);
                 articleObj.centerArticle = sortedArticle[i];
                 articleObj.sameCategory = [];
@@ -217,7 +218,7 @@ module.exports = class Article {
                     }
                   }
                 }
-              }
+
             }
 
             for (let j = 0; j < centerArray.length; j++) {
@@ -778,6 +779,24 @@ module.exports = class Article {
               objForLikes.avatarLink = user.avatarLink;
               doc.likes.push(objForLikes);
               doc.numberOfLikes = doc.likes.length;
+
+              //發通知
+              let notificationObject = {
+                title: "按讚通知",
+                body: user.userName + "覺得您的文章讚"
+              };
+
+              //取得B的token
+              profileSchemaModel.findOne({userID: doc.authorID})
+                .then(profile_data => {
+                  let notificationToken = profile_data.notificationToken[0];
+                  sendNotification(notificationToken, notificationObject);
+                  profile_data.notification.push(notificationObject);
+                  profile_data.save()
+                })
+                .catch(err => {
+                  console.log(err);
+                })
             }
 
             doc.save()
@@ -887,6 +906,25 @@ module.exports = class Article {
                     forComment.commenterName = user.userName;
 
                 doc.comment.push(forComment);
+
+                //發通知
+                let notificationObject = {
+                  title: "留言通知",
+                  body: fields.commenterName + " 在您的文章中留言"
+                };
+
+                //取得B的token
+                profileSchemaModel.findOne({userID: doc.authorID})
+                  .then(profile_data => {
+                    let notificationToken = profile_data.notificationToken[0];
+                    sendNotification(notificationToken, notificationObject);
+                    profile_data.notification.push(notificationObject);
+                    profile_data.save()
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  })
+
                 doc.save()
                   .then(value => {
                     let result = {
@@ -919,6 +957,25 @@ module.exports = class Article {
                   forComment.commenterName = user.userName;
 
               doc.comment.push(forComment);
+
+              //發通知
+              let notificationObject = {
+                title: "留言通知",
+                body: forComment.commenterName + "在您的文章中留言"
+              };
+
+              //取得B的token
+              profileSchemaModel.findOne({userID: doc.authorID})
+                .then(profile_data => {
+                  let notificationToken = profile_data.notificationToken[0];
+                  sendNotification(notificationToken, notificationObject);
+                  profile_data.notification.push(notificationObject);
+                  profile_data.save()
+                })
+                .catch(err => {
+                  console.log(err);
+                })
+
               doc.save()
                 .then(value => {
                   let result = {
@@ -950,6 +1007,25 @@ module.exports = class Article {
                   forComment.commenterName = user.userName;
 
               doc.comment.push(forComment);
+
+              //發通知
+              let notificationObject = {
+                title: "留言通知",
+                body: forComment.commenterName + "在您的文章中留言"
+              };
+
+              //取得B的token
+              profileSchemaModel.findOne({userID: doc.authorID})
+                .then(profile_data => {
+                  let notificationToken = profile_data.notificationToken[0];
+                  sendNotification(notificationToken, notificationObject);
+                  profile_data.notification.push(notificationObject);
+                  profile_data.save()
+                })
+                .catch(err => {
+                  console.log(err);
+                })
+
               doc.save()
                 .then(value => {
                   let result = {
@@ -976,22 +1052,41 @@ module.exports = class Article {
                 forComment.commenterName = user.userName;
                 doc.comment.push(forComment);
 
-            doc.save()
-              .then(value => {
-                let result = {
-                  status: "留言成功",
-                  content: value
+                //發通知
+                let notificationObject = {
+                  title: "留言通知",
+                  body: forComment.commenterName + "在您的文章中留言"
                 };
-                res.json(result);
-              })
-              .catch(error => {
-                let result = {
-                  status: "留言失敗",
-                  err: "伺服器錯誤，請稍後再試"
-                };
-                res.json(error);
-              })
-              .catch(error => res.json(error));
+
+                //取得B的token
+                profileSchemaModel.findOne({userID: doc.authorID})
+                  .then(profile_data => {
+                    let notificationToken = profile_data.notificationToken[0];
+                    sendNotification(notificationToken, notificationObject);
+                    profile_data.notification.push(notificationObject);
+                    profile_data.save()
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  })
+
+
+                doc.save()
+                  .then(value => {
+                    let result = {
+                      status: "留言成功",
+                      content: value
+                    };
+                    res.json(result);
+                  })
+                  .catch(error => {
+                    let result = {
+                      status: "留言失敗",
+                      err: "伺服器錯誤，請稍後再試"
+                    };
+                    res.json(error);
+                  })
+          .catch(error => res.json(error));
           })
         })
       }
@@ -1021,6 +1116,24 @@ module.exports = class Article {
                 doc.comment[i].likes.push(objForLikes);
                 doc.comment[i].numberOfLikes = doc.comment[i].likes.length;
                 doc.comment.set(i, doc.comment[i]);
+
+                //發通知
+                let notificationObject = {
+                  title: "留言按讚通知",
+                  body: user.userName + " 覺得您的留言讚"
+                };
+
+                //取得B的token
+                profileSchemaModel.findOne({userID: doc.authorID})
+                  .then(profile_data => {
+                    let notificationToken = profile_data.notificationToken[0];
+                    sendNotification(notificationToken, notificationObject);
+                    profile_data.notification.push(notificationObject);
+                    profile_data.save()
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  })
               }
             }
             doc.save()

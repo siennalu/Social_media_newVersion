@@ -16,6 +16,8 @@ router.post('/register', user.insertUser); //create(register)
 
 router.post('/login', user.loginUser);  //login
 
+router.put('/logout', user.logoutUser); //logout
+
 router.get('/search_user', user.retrieveUser); //read
 
 router.put('/update_user', user.updateUser); //update

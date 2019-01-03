@@ -106,7 +106,8 @@ module.exports = class User {
     let user = new userSchemaModel({
       userName: req.body.userName,
       password: req.body.password,
-      email: req.body.email
+      email: req.body.email,
+      notificationToken: req.body.notificationToken,
     });
 
     userSchemaModel.findOne({email: user.email}, function(err, foundUser) {
@@ -129,12 +130,21 @@ module.exports = class User {
                 // token一分鐘後過期
                 data: foundUser.id
               }, 'secret');
+
+             //儲存notificationToken
+              profileSchemaModel.findOne({userID: foundUser._id})
+                .then(data => {
+                  data.notificationToken = user.notificationToken;
+                  data.save()
+                });
+
               res.json({
                 result: {
                   status: "登入成功",
                   loginMember: "歡迎 " + foundUser.userName + " 的登入",
                   userID: foundUser._id,
-                  token: token
+                  token: token,
+                  notificationToken: user.notificationToken
                 }
               });
             } else {
@@ -149,6 +159,23 @@ module.exports = class User {
          }
     })
   }
+
+  logoutUser(req, res, next) {
+    //登出時notificationToken刪除
+    profileSchemaModel.findOne({userID: req.body.userID})
+      .then(doc => {
+        //notificationToken刪除
+        if (doc.notificationToken.indexOf(req.body.notificationToken) !== -1) {
+          doc.notificationToken.splice(doc.notificationToken.indexOf(req.body.notificationToken), 1);
+        }
+        let result = {
+          status: "成功登出",
+          content: doc
+        };
+        res.json(result);
+      })
+  }
+
 
   retrieveUser(req, res, next) {
     userSchemaModel.find()

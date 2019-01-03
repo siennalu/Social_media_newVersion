@@ -16,6 +16,8 @@ let profileSchema = new Schema({
   backgroundLink: Array,
   requestByOthers:Array,
   requestByMyself:Array,
+  notification: Array,
+  notificationToken: Array,
 }, { versionKey: false });
 
 let profile_schema = mongoose.model('Profile', profileSchema);
